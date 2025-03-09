@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
-import { AppService } from './app.service';
-import { TableService } from './table.service';
-import { Table } from './entities/table.entity';
+import { AppService } from '../app.service';
+import { TableService } from '../services/table.service';
+import { Table } from '../entities/table.entity';
 
 @Controller('tables')
 export class AppController {
