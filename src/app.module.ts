@@ -8,6 +8,7 @@ import { NavigatorController } from './controllers/navigator.controller';
 import { Navigator } from './entities/navigator.entity';
 import { NavigatorService } from './services/navigator.service';
 import { join } from 'path';
+import { NotificationsGateway } from './gateways/notifications.gateway';
 
 @Module({
   imports: [
@@ -26,6 +27,6 @@ import { join } from 'path';
     TypeOrmModule.forFeature([Table, Navigator]),
   ],
   controllers: [AppController, NavigatorController],
-  providers: [AppService, TableService, NavigatorService],
+  providers: [AppService, TableService, NavigatorService, NotificationsGateway],
 })
 export class AppModule {}
