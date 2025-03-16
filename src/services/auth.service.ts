@@ -15,7 +15,6 @@ export class AuthService {
     const user = await this.userService.findByUsername(username);
     
     if (user && await user.validatePassword(password)) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
@@ -35,10 +34,8 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    // Créer un nouvel utilisateur
     const user = await this.userService.create(registerDto);
     
-    // Générer un token pour le nouvel utilisateur
     return this.generateToken(user);
   }
 
