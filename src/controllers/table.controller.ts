@@ -3,8 +3,8 @@ import { AppService } from '../app.service';
 import { TableService } from '../services/table.service';
 import { Table } from '../entities/table.entity';
 
-@Controller('tables')
-export class AppController {
+@Controller('table')
+export class TableController {
   constructor(
     private readonly appService: AppService,
     private readonly tableService: TableService,
