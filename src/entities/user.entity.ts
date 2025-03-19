@@ -15,6 +15,9 @@ export class User {
   @Column({ default: false })
   isAdmin: boolean;
 
+  @Column({ default: false })
+  isBlocked: boolean;
+
   @Column({ nullable: true })
   fullName: string;
 

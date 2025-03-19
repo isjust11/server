@@ -22,6 +22,11 @@ import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { AuthController } from './controllers/auth.controller';
 import { Guest } from './entities/guest.entity';
+import { UserController } from './controllers/user.controller';
+import { UserService } from './services/user.service';
+import { MediaController } from './controllers/media.controller';
+import { MediaService } from './services/media.service';
+import { Media } from './entities/media.entity';
 
 @Module({
   imports: [
@@ -32,12 +37,12 @@ import { Guest } from './entities/guest.entity';
       username: 'root',
       password: 'Hg!@1997',
       database: 'easy_order',
-      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest],
+      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media],
       synchronize: true,
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       migrationsRun: true,
     }),
-    TypeOrmModule.forFeature([Table, Navigator, FoodItem, Order, OrderItem, User, Guest]),
+    TypeOrmModule.forFeature([Table, Navigator, FoodItem, Order, OrderItem, User, Guest, Media]),
     AuthModule,
   ],
   controllers: [
@@ -45,7 +50,9 @@ import { Guest } from './entities/guest.entity';
     NavigatorController,
     FoodItemController,
     OrderController,
-    AuthController
+    AuthController,
+    UserController,
+    MediaController,
   ],
   providers: [
     AppService, 
@@ -54,6 +61,8 @@ import { Guest } from './entities/guest.entity';
     NotificationsGateway,
     FoodItemService,
     OrderService,
+    UserService,
+    MediaService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
