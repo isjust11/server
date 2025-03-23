@@ -9,6 +9,9 @@ export class RegisterDto {
   fullName?: string;
   email?: string;
   isAdmin?: boolean;
+  googleId?: string;
+  picture?: string;
+  isGoogleUser?: boolean;
 }
 
 export class JwtPayload {

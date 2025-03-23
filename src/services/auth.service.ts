@@ -22,6 +22,38 @@ export class AuthService {
     return null;
   }
 
+  async validateSocialUser(socialUser: any): Promise<any> {
+    try {
+      // Tìm user theo email
+      let user = await this.userService.findByEmail(socialUser.email);
+      
+      if (!user) {
+        // Tạo user mới nếu chưa tồn tại
+        const registerDto: RegisterDto = {
+          username: socialUser.email,
+          email: socialUser.email,
+          fullName: socialUser.fullName,
+          password: Math.random().toString(36).slice(-8), // Tạo mật khẩu ngẫu nhiên
+          googleId: socialUser.googleId, // Lưu ID từ Google
+          picture: socialUser.picture, // Lưu ảnh đại diện
+          isGoogleUser: true, // Đánh dấu là user đăng nhập bằng Google
+        };
+        user = await this.userService.create(registerDto);
+      } else {
+        // Cập nhật thông tin nếu user đã tồn tại
+        user.googleId = socialUser.googleId;
+        user.picture = socialUser.picture;
+        user.isGoogleUser = true;
+        await this.userService.update(user.id, user);
+      }
+      
+      return this.generateToken(user);
+    } catch (error) {
+      console.error('Error in validateSocialUser:', error);
+      throw error;
+    }
+  }
+
   async login(loginDto: LoginDto) {
     const { username, password } = loginDto;
     const user = await this.validateUser(username, password);

@@ -6,11 +6,13 @@ import { JwtPayload } from '../dtos/auth.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  
   constructor(private userService: UserService) {
+    console.log('JWT_SECRET', process.env.JWT_SECRET);
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'your-secret-key-change-me-in-production',
+      secretOrKey: process.env.JWT_SECRET || 'AyTUug0rjLJrLF5FJOdyaVdNkaZgugvp',
     });
   }
 

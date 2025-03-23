@@ -24,6 +24,15 @@ export class User {
   @Column({ nullable: true })
   email: string;
 
+  @Column({ nullable: true })
+  googleId: string;
+
+  @Column({ nullable: true })
+  picture: string;
+
+  @Column({ default: false })
+  isGoogleUser: boolean;
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);

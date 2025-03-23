@@ -2,23 +2,28 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
+//config env
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
+
   // Enable CORS
   app.enableCors({
-    origin: 'http://localhost:3000', // URL của client Next.js
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: [process.env.CLIENT_URL || 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
+    exposedHeaders: ['Authorization'],
   });
 
   // Cấu hình phục vụ file tĩnh
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
-
-  await app.listen(process.env.PORT ?? 4000);
+  console.log(process.env.JWT_SECRET);
+  await app.listen(process.env.PORT ?? 4200);
 }
 bootstrap();

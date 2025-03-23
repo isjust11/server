@@ -27,9 +27,14 @@ import { UserService } from './services/user.service';
 import { MediaController } from './controllers/media.controller';
 import { MediaService } from './services/media.service';
 import { Media } from './entities/media.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env', // Đường dẫn đến tệp .env
+      isGlobal: true, // Biến môi trường sẽ khả dụng toàn cục
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
