@@ -7,6 +7,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function bootstrap() {
+  console.log('Starting application...');
+  debugger; // Điểm dừng 1: Khi khởi tạo ứng dụng
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
   // Enable CORS
@@ -22,7 +24,6 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
-
   console.log('Server configuration completed');
   console.log('JWT Secret:', process.env.JWT_SECRET);
   await app.listen(process.env.PORT ?? 4200);
