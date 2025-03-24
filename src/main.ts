@@ -9,10 +9,9 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
-
   // Enable CORS
   app.enableCors({
-    origin: [process.env.CLIENT_URL || 'http://localhost:3000'],
+    origin: [process.env.CLIENT_URL || 'http://localhost:3000',],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
@@ -23,7 +22,10 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
-  console.log(process.env.JWT_SECRET);
+
+  console.log('Server configuration completed');
+  console.log('JWT Secret:', process.env.JWT_SECRET);
   await app.listen(process.env.PORT ?? 4200);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
