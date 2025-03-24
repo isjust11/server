@@ -75,7 +75,10 @@ export class AuthService {
     const payload: JwtPayload = {
       username: user.username,
       sub: user.id,
-      isAdmin: user.isAdmin,
+      picture: user.picture,
+      email: user.email,
+      fullName: user.fullName,
+      googleId: user.googleId,
     };
     
     return {
@@ -85,6 +88,7 @@ export class AuthService {
         username: user.username,
         fullName: user.fullName,
         isAdmin: user.isAdmin,
+        picture: user.picture,
       },
     };
   }

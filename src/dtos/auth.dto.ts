@@ -17,5 +17,8 @@ export class RegisterDto {
 export class JwtPayload {
   username: string;
   sub: number;
-  isAdmin: boolean;
+  picture: string;
+  email: string;
+  fullName: string;
+  googleId: string;
 } 

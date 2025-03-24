@@ -7,12 +7,15 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function bootstrap() {
+  console.log('Starting application...');
+  debugger; // Điểm dừng 1: Khi khởi tạo ứng dụng
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
+  debugger; // Điểm dừng 2: Sau khi tạo app instance
 
   // Enable CORS
   app.enableCors({
-    origin: [process.env.CLIENT_URL || 'http://localhost:3000'],
+    origin: [process.env.CLIENT_URL || 'http://localhost:3000',],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
@@ -23,7 +26,11 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
-  console.log(process.env.JWT_SECRET);
+  
+  debugger; // Điểm dừng 3: Trước khi khởi động server
+  console.log('Server configuration completed');
+  console.log('JWT Secret:', process.env.JWT_SECRET);
   await app.listen(process.env.PORT ?? 4200);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

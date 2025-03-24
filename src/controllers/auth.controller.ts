@@ -1,9 +1,10 @@
 import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { LoginDto, RegisterDto } from '../dtos/auth.dto';
+import { JwtPayload, LoginDto, RegisterDto } from '../dtos/auth.dto';
 import { JwtAuthGuard, Public } from '../auth/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
+import { User } from 'src/entities/user.entity';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -29,6 +30,29 @@ export class AuthController {
   }
 
   @Public()
+  @Get('me')
+  async getCurrentUser(@Request() req) {
+    try {
+      // Lấy cookie từ request
+      const userCookie = req.cookies?.user;
+      
+      if (!userCookie) {
+        console.log('Không tìm thấy cookie user');
+        return null;
+      }
+
+      // Parse JSON từ cookie
+      const userData = JSON.parse(userCookie);
+      console.log('User data từ cookie:', userData);
+      
+      return userData;
+    } catch (error) {
+      console.error('Lỗi khi lấy user từ cookie:', error);
+      return null;
+    }
+  }
+
+  @Public()
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Request() req) {
@@ -48,12 +72,17 @@ export class AuthController {
         googleId: req.user.id, // ID từ Google
         accessToken: req.user.accessToken,
       });
-
-      // Tạo JWT token
       const token = await this.authService.generateToken(user);
-      
-      // Chuyển hướng về frontend với token
-      res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}`);
+      // Set secure cookie with user data
+      res.cookie('user', JSON.stringify(user), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      });
+
+      // Redirect with only token
+      res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}&user=${JSON.stringify(user)}`);
     } catch (error) {
       console.error('Google authentication error:', error);
       res.redirect(`${process.env.CLIENT_URL}/auth/error?message=Authentication failed`);
@@ -72,6 +101,6 @@ export class AuthController {
   @UseGuards(AuthGuard('facebook'))
   async facebookAuthCallback(@Request() req, @Res() res: Response) {
     const token = await this.authService.generateToken(req.user);
-    res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}`);
+    res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}&user=${JSON.stringify(req.user)}`);
   }
 } 
