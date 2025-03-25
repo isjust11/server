@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { EmailService } from '../services/email.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User } from '../entities/user.entity';
 import { AuthController } from '../controllers/auth.controller';
@@ -21,7 +22,7 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, UserService, JwtStrategy, GoogleStrategy, FacebookStrategy],
+  providers: [AuthService, UserService, EmailService, JwtStrategy, GoogleStrategy, FacebookStrategy],
   controllers: [AuthController],
   exports: [AuthService, JwtStrategy, PassportModule],
 })

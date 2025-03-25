@@ -12,6 +12,8 @@ export class RegisterDto {
   googleId?: string;
   picture?: string;
   isGoogleUser?: boolean;
+  verificationToken?: string;
+  isEmailVerified?: boolean;
 }
 
 export class JwtPayload {

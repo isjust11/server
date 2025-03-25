@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus, Query } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { JwtPayload, LoginDto, RegisterDto } from '../dtos/auth.dto';
 import { JwtAuthGuard, Public } from '../auth/jwt-auth.guard';
@@ -23,33 +23,15 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;
-  }
-
-  @Public()
-  @Get('me')
-  async getCurrentUser(@Request() req) {
-    try {
-      // Lấy cookie từ request
-      const userCookie = req.cookies?.user;
-      
-      if (!userCookie) {
-        console.log('Không tìm thấy cookie user');
-        return null;
-      }
-
-      // Parse JSON từ cookie
-      const userData = JSON.parse(userCookie);
-      console.log('User data từ cookie:', userData);
-      
-      return userData;
-    } catch (error) {
-      console.error('Lỗi khi lấy user từ cookie:', error);
-      return null;
-    }
   }
 
   @Public()

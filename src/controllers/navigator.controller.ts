@@ -1,27 +1,33 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { NavigatorService } from 'src/services/navigator.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { NavigatorService } from '../services/navigator.service';
 import { Navigator } from '../entities/navigator.entity';
 
-@Controller('navigator')
+@Controller('navigators')
 export class NavigatorController {
     constructor(private readonly navigatorService: NavigatorService) {}
+
+    @Post()
+    create(@Body() createNavigatorDto: Partial<Navigator>) {
+        return this.navigatorService.create(createNavigatorDto);
+    }
+
     @Get()
-    async getNavigator() {
+    findAll() {
         return this.navigatorService.findAll();
     }
 
-    @Post()
-    async createNavigator(@Body() navigator: Navigator) {
-        return this.navigatorService.create(navigator);
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.navigatorService.findOne(+id);
     }
 
-    @Put(':id')
-    async updateNavigator(@Param('id') id: number, @Body() navigator: Navigator) {
-        return this.navigatorService.update(id, navigator);
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateNavigatorDto: Partial<Navigator>) {
+        return this.navigatorService.update(+id, updateNavigatorDto);
     }
 
     @Delete(':id')
-    async deleteNavigator(@Param('id') id: number) {
-        return this.navigatorService.delete(id);
+    remove(@Param('id') id: string) {
+        return this.navigatorService.remove(+id);
     }
 }

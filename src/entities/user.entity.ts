@@ -33,6 +33,12 @@ export class User {
   @Column({ default: false })
   isGoogleUser: boolean;
 
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ nullable: true })
+  verificationToken: string;
+
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10);
