@@ -28,6 +28,13 @@ import { MediaController } from './controllers/media.controller';
 import { MediaService } from './services/media.service';
 import { Media } from './entities/media.entity';
 import { ConfigModule } from '@nestjs/config';
+import { PermissionController } from './controllers/permission.controller';
+import { RoleController } from './controllers/role.controller';
+import { ExampleController } from './controllers/example.controller';
+import { Role } from './entities/role.entity';
+import { Permission } from './entities/permission.entity';
+import { RoleService } from './services/role.service';
+import { PermissionService } from './services/permission.service';
 
 @Module({
   imports: [
@@ -42,12 +49,22 @@ import { ConfigModule } from '@nestjs/config';
       username: 'root',
       password: 'Hg!@1997',
       database: 'easy_order',
-      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media],
+      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media, Permission, Role],
       synchronize: true,
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       migrationsRun: true,
     }),
-    TypeOrmModule.forFeature([Table, Navigator, FoodItem, Order, OrderItem, User, Guest, Media]),
+    TypeOrmModule.forFeature([Table,
+      Navigator,
+      FoodItem,
+      Order,
+      OrderItem,
+      User, 
+      Guest, 
+      Media, 
+      Permission, 
+      Role
+    ]),
     AuthModule,
   ],
   controllers: [
@@ -58,20 +75,26 @@ import { ConfigModule } from '@nestjs/config';
     AuthController,
     UserController,
     MediaController,
+    PermissionController,
+    RoleController,
+    ExampleController,
+
   ],
   providers: [
-    AppService, 
-    TableService, 
-    NavigatorService, 
+    AppService,
+    TableService,
+    NavigatorService,
     NotificationsGateway,
     FoodItemService,
     OrderService,
     UserService,
     MediaService,
+    PermissionService,
+    RoleService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

@@ -3,12 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { LoginDto, RegisterDto, JwtPayload } from '../dtos/auth.dto';
 import { User } from '../entities/user.entity';
+import { EmailService } from './email.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -66,9 +69,36 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const user = await this.userService.create(registerDto);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const user = await this.userService.create({
+      ...registerDto,
+      verificationToken,
+      isEmailVerified: false,
+    });
+    
+    // Gửi email xác thực
+    if (user.email) {
+      await this.emailService.sendVerificationEmail(
+        user.email, 
+        verificationToken,
+        user.fullName || user.username
+      );
+    }
     
     return this.generateToken(user);
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.userService.findByVerificationToken(token);
+    if (!user) {
+      throw new UnauthorizedException('Token xác thực không hợp lệ');
+    }
+
+    user.isEmailVerified = true;
+    user.verificationToken = '';
+    await this.userService.update(user.id, user);
+
+    return { message: 'Email đã được xác thực thành công' };
   }
 
   async generateToken(user: User) {

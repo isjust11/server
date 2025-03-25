@@ -23,6 +23,10 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { verificationToken: token } });
+  }
+
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
