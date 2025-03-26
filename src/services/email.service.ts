@@ -19,7 +19,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string, fullName: string) {
-    const verificationUrl = `${this.configService.get<string>('FRONTEND_URL')}/verify-email?token=${token}`;
+    const verificationUrl = `${this.configService.get<string>('CLIENT_URL')}/verify-email?token=${token}`;
     
     // Đọc template HTML
     const templatePath = path.join(__dirname, '../templates/email/verification.html');

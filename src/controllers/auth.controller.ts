@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus, Query, Param, Req, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { JwtPayload, LoginDto, RegisterDto } from '../dtos/auth.dto';
 import { JwtAuthGuard, Public } from '../auth/jwt-auth.guard';
@@ -23,6 +23,7 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
+  @Public()
   @Get('verify-email')
   async verifyEmail(@Query('token') token: string) {
     return this.authService.verifyEmail(token);
@@ -91,5 +92,23 @@ export class AuthController {
     });
     const token = await this.authService.generateToken(user);
     res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}&user=${JSON.stringify(user)}`);
+  }
+
+  @Post('refresh')
+  async refreshToken(@Body('refreshToken') refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+    return this.authService.refreshAccessToken(refreshToken);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@Body('refreshToken') refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is required');
+    }
+    await this.authService.revokeRefreshToken(refreshToken);
+    return { message: 'Đăng xuất thành công' };
   }
 } 

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { NavigatorService } from '../services/navigator.service';
 import { Navigator } from '../entities/navigator.entity';
 
-@Controller('navigators')
+@Controller('navigator')
 export class NavigatorController {
     constructor(private readonly navigatorService: NavigatorService) {}
 
