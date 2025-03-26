@@ -35,6 +35,7 @@ import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { RoleService } from './services/role.service';
 import { PermissionService } from './services/permission.service';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -49,7 +50,7 @@ import { PermissionService } from './services/permission.service';
       username: 'root',
       password: 'Hg!@1997',
       database: 'easy_order',
-      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media, Permission, Role],
+      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media, Permission, Role, RefreshToken],
       synchronize: true,
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       migrationsRun: true,

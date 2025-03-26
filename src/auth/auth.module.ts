@@ -11,6 +11,7 @@ import { User } from '../entities/user.entity';
 import { AuthController } from '../controllers/auth.controller';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { FacebookStrategy } from './strategies/facebook.strategy';
+import { RefreshToken } from 'src/entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { FacebookStrategy } from './strategies/facebook.strategy';
       secret: process.env.JWT_SECRET || 'AyTUug0rjLJrLF5FJOdyaVdNkaZgugvp',
       signOptions: { expiresIn: '24h' },
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, RefreshToken]),
   ],
   providers: [AuthService, UserService, EmailService, JwtStrategy, GoogleStrategy, FacebookStrategy],
   controllers: [AuthController],

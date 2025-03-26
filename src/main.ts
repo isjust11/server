@@ -7,8 +7,6 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function bootstrap() {
-  console.log('Starting application...');
-  debugger; // Điểm dừng 1: Khi khởi tạo ứng dụng
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
   // Enable CORS
