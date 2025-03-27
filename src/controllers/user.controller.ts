@@ -3,6 +3,7 @@ import { UserService } from '../services/user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dtos/auth.dto';
+import { UpdateUserDto } from '../dtos/user.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -27,7 +28,7 @@ export class UserController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateUserDto: Partial<User>,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.userService.update(parseInt(id), updateUserDto);
   }

@@ -3,16 +3,84 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dtos/auth.dto';
+import { Role } from '../entities/role.entity';
+import { UpdateUserDto } from '../dtos/user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepository: Repository<Role>,
   ) {}
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      relations: ['roles'],
+    });
+  }
+
+  async findById(id: number): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['roles'],
+    });
+  }
+
+  async create(createUserDto: RegisterDto): Promise<User> {
+    const existingUser = await this.findByUsername(createUserDto.username);
+    if (existingUser) {
+      throw new ConflictException('Username already exists');
+    }
+
+    const user = this.userRepository.create({
+      username: createUserDto.username,
+      password: createUserDto.password,
+      fullName: createUserDto.fullName,
+      email: createUserDto.email,
+      isAdmin: createUserDto.isAdmin || false,
+    });
+
+    if (createUserDto.roleIds) {
+      const roles = await this.roleRepository.findByIds(createUserDto.roleIds);
+      user.roles = roles;
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    if (updateUserDto.fullName !== undefined) {
+      user.fullName = updateUserDto.fullName;
+    }
+
+    if (updateUserDto.email !== undefined) {
+      user.email = updateUserDto.email;
+    }
+
+    if (updateUserDto.isAdmin !== undefined) {
+      user.isAdmin = updateUserDto.isAdmin;
+    }
+
+    if (updateUserDto.roleIds) {
+      const roles = await this.roleRepository.findByIds(updateUserDto.roleIds);
+      user.roles = roles;
+    }
+
+    return this.userRepository.save(user);
+  }
+
+  async remove(id: number): Promise<void> {
+    const result = await this.userRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 
   async findByUsername(username: string): Promise<User | null> {
@@ -27,55 +95,10 @@ export class UserService {
     return this.userRepository.findOne({ where: { verificationToken: token } });
   }
 
-  async findById(id: number): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
-  }
-
-  async create(registerDto: RegisterDto): Promise<User> {
-    const { username } = registerDto;
-    
-    // Vérifier si l'utilisateur existe déjà
-    const existingUser = await this.findByUsername(username);
-    if (existingUser) {
-      throw new ConflictException(`Tài khoản ${username} đã tồn tại`);
-    }
-    
-    // Créer un nouvel utilisateur
-    const user = this.userRepository.create(registerDto);
-    
-    // Enregistrer le nouvel utilisateur dans la base de données
-    return this.userRepository.save(user);
-  }
-
-  async update(id: number, userData: Partial<User>): Promise<User> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
-    }
-    
-    // Supprimer le mot de passe de l'objet mis à jour si présent pour éviter la mise à jour
-    if (userData.password) {
-      delete userData.password;
-    }
-    
-    // Mettre à jour les propriétés utilisateur
-    Object.assign(user, userData);
-    
-    return this.userRepository.save(user);
-  }
-
-  async remove(id: number): Promise<void> {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
-    }
-    await this.userRepository.remove(user);
-  }
-
   async blockUser(id: number): Promise<User> {
     const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     user.isBlocked = true;
     return this.userRepository.save(user);
@@ -84,7 +107,7 @@ export class UserService {
   async unblockUser(id: number): Promise<User> {
     const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     user.isBlocked = false;
     return this.userRepository.save(user);
