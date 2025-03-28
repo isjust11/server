@@ -27,7 +27,7 @@ export class PermissionGuard implements CanActivate {
       return false;
     }
 
-    const role = await this.roleService.findOne(user.roleId);
+    const role = await this.roleService.findById(user.roleId);
     if (!role) {
       return false;
     }

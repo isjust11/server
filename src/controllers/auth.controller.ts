@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus, Query, Param, Req, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { JwtPayload, LoginDto, RegisterDto } from '../dtos/auth.dto';
-import { JwtAuthGuard, Public } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { User } from 'src/entities/user.entity';
