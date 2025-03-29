@@ -24,7 +24,7 @@ export class AuthMiddleware implements NestMiddleware {
       // Thêm thông tin user vào request
       req['user'] = payload;
       next();
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Token không hợp lệ');
     }
   }

@@ -26,7 +26,7 @@ export class User {
   email: string;
 
   @Column({ nullable: true })
-  googleId: string;
+  platformId: string;
 
   @Column({ nullable: true })
   picture: string;
@@ -35,10 +35,28 @@ export class User {
   isGoogleUser: boolean;
 
   @Column({ default: false })
+  isFacebookUser: boolean;
+
+  @Column({ default: false })
+  isAppleUser: boolean;
+
+  @Column({ nullable: true })
+  isWebsiteUser: boolean;
+
+  @Column({ default: false })
   isEmailVerified: boolean;
 
   @Column({ nullable: true })
   verificationToken: string;
+
+  @Column({ nullable: true })
+  lastLogin: Date;
+
+  @Column({ nullable: true })
+  createdAt: Date;
+
+  @Column({ nullable: true })
+  updatedAt: Date;
 
   @ManyToMany(() => Role)
   @JoinTable({
@@ -56,7 +74,7 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 12);
   }
 
   async validatePassword(password: string): Promise<boolean> {

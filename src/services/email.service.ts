@@ -40,9 +40,9 @@ export class EmailService {
     try {
       await this.transporter.sendMail(mailOptions);
       return true;
-    } catch (error) {
-      console.error('Error sending verification email:', error);
-      throw error;
+    } catch (_error) {
+      console.error('Error sending verification email:', _error);
+      throw _error;
     }
   }
 } 

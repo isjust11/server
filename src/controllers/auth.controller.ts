@@ -1,10 +1,9 @@
-import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, HttpStatus, Query, Param, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, Query, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { JwtPayload, LoginDto, RegisterDto } from '../dtos/auth.dto';
+import { LoginDto, RegisterDto, ResendEmailDto } from '../dtos/auth.dto';
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { User } from 'src/entities/user.entity';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -21,6 +20,12 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Public()
+  @Post('resend-email')
+  async resendEmail(@Body() resendEmailDto: ResendEmailDto) {
+    return this.authService.resendEmail(resendEmailDto);
   }
 
   @Public()
@@ -47,28 +52,12 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthCallback(@Request() req, @Res() res: Response) {
     try {
-      // Lưu hoặc cập nhật thông tin người dùng vào database
-      const user = await this.authService.validateSocialUser({
-        email: req.user.email,
-        fullName: req.user.fullName,
-        picture: req.user.picture,
-        googleId: req.user.id, // ID từ Google
-        accessToken: req.user.accessToken,
-      });
-      const token = await this.authService.generateToken(user);
-      // Set secure cookie with user data
-      res.cookie('user', JSON.stringify(user), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-      });
-
-      // Redirect with only token
-      res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}&user=${JSON.stringify(user)}`);
-    } catch (error) {
-      console.error('Google authentication error:', error);
-      res.redirect(`${process.env.CLIENT_URL}/auth/error?message=Authentication failed`);
+      const userInfo = req.user;
+      const tempToken = await this.authService.createTempToken(userInfo);
+      res.redirect(`${process.env.CLIENT_URL}/success?token=${tempToken}`);
+    } catch (_error) {
+      console.error('Google authentication error:', _error);
+      res.redirect(`${process.env.CLIENT_URL}/error?message=Authentication failed`);
     }
   }
 
@@ -83,15 +72,20 @@ export class AuthController {
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
   async facebookAuthCallback(@Request() req, @Res() res: Response) {
-    const user = await this.authService.validateSocialUser({
-      email: req.user.email,
-      fullName: req.user.fullName,
-      picture: req.user.picture,
-      facebookId: req.user.id, // ID từ Facebook
-      accessToken: req.user.accessToken,
-    });
-    const token = await this.authService.generateToken(user);
-    res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token.accessToken}&user=${JSON.stringify(user)}`);
+    try {
+      const userInfo = req.user;
+      const tempToken = await this.authService.createTempToken(userInfo);
+      res.redirect(`${process.env.CLIENT_URL}/success?token=${tempToken}`);
+    } catch (_error) {
+      console.error('Facebook authentication error:', _error);
+      res.redirect(`${process.env.CLIENT_URL}/error?message=Authentication failed`);
+    }
+  }
+
+  @Public()
+  @Get('token-info')
+  async getTokenInfo(@Query('token') token: string) {
+    return this.authService.getTempTokenInfo(token);
   }
 
   @Post('refresh')

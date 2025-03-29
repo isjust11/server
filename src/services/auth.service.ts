@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './user.service';
-import { LoginDto, RegisterDto, JwtPayload } from '../dtos/auth.dto';
+import { LoginDto, RegisterDto, JwtPayload, ResendEmailDto } from '../dtos/auth.dto';
 import { User } from '../entities/user.entity';
 import { EmailService } from './email.service';
 import * as crypto from 'crypto';
@@ -11,22 +11,49 @@ import { RefreshToken } from '../entities/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
+  private tempTokens: Map<string, { user: any; accessToken: string }> = new Map();
+
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
     private emailService: EmailService,
     @InjectRepository(RefreshToken)
     private refreshTokenRepository: Repository<RefreshToken>,
-  ) {}
+  ) { }
 
   async validateUser(username: string, password: string): Promise<any> {
     const user = await this.userService.findByUsername(username);
-    
+    if (user?.isBlocked) {
+      throw new UnauthorizedException('Tài khoản đã bị khóa');
+    }
     if (user && await user.validatePassword(password)) {
+      user.lastLogin = new Date();
+      await this.userService.update(user.id, user);
       const { password, ...result } = user;
       return result;
     }
-    
+
+    return null;
+  }
+
+  async validateWebsiteUser(registerDto: RegisterDto): Promise<any> {
+    const existingUser = await this.userService.findByUsername(registerDto.username);
+    // trường hợp đã tồn tại tài khoản và email trùng nhau
+    if (existingUser && existingUser.email === registerDto.email) {
+      if (existingUser.isEmailVerified) {
+        return existingUser;
+      } else {
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        existingUser.verificationToken = verificationToken;
+        await this.userService.update(existingUser.id, existingUser);
+        await this.emailService.sendVerificationEmail(
+          existingUser.email,
+          verificationToken,
+          existingUser.fullName || existingUser.username
+        );
+        return 'Email đã được gửi đến bạn';
+      }
+    }
     return null;
   }
 
@@ -34,7 +61,7 @@ export class AuthService {
     try {
       // Tìm user theo email
       let user = await this.userService.findByEmail(socialUser.email);
-      
+
       if (!user) {
         // Tạo user mới nếu chưa tồn tại
         const registerDto: RegisterDto = {
@@ -42,54 +69,88 @@ export class AuthService {
           email: socialUser.email,
           fullName: socialUser.fullName,
           password: Math.random().toString(36).slice(-8), // Tạo mật khẩu ngẫu nhiên
-          googleId: socialUser.googleId, // Lưu ID từ Google
+          platformId: socialUser.platformId, // Lưu ID từ Google
           picture: socialUser.picture, // Lưu ảnh đại diện
-          isGoogleUser: true, // Đánh dấu là user đăng nhập bằng Google
+          isGoogleUser: socialUser.isGoogleUser || false, // Đánh dấu là user đăng nhập bằng Google
+          isFacebookUser: socialUser.isFacebookUser || false,
         };
         user = await this.userService.create(registerDto);
       } else {
         // Cập nhật thông tin nếu user đã tồn tại
-        user.googleId = socialUser.googleId;
-        user.picture = socialUser.picture;
-        user.isGoogleUser = true;
-        await this.userService.update(user.id, user);
+        if (socialUser.platformId === user.platformId) {
+          user.platformId = socialUser.platformId;
+          user.picture = socialUser.picture;
+          user.isGoogleUser = socialUser.isGoogleUser || false;
+          user.isFacebookUser = socialUser.isFacebookUser || false;
+          await this.userService.update(user.id, user);
+        } else {
+          const platformName = user.isWebsiteUser ? 'trên Website' : user.isGoogleUser ? 'nền tảng Google' : user.isFacebookUser ? 'nền tảng Facebook' : 'nền tảng Apple';
+          throw new UnauthorizedException(`Địa chỉ email đã được sử dụng ở ${platformName}`);
+        }
       }
-      
+
       return this.generateToken(user);
-    } catch (error) {
-      console.error('Error in validateSocialUser:', error);
-      throw error;
+    } catch (_error) {
+      console.error('Error in validateSocialUser:', _error);
+      throw _error;
     }
   }
 
   async login(loginDto: LoginDto) {
     const { username, password } = loginDto;
     const user = await this.validateUser(username, password);
-    
+
     if (!user) {
-      throw new UnauthorizedException('Identifiants invalides');
+      throw new UnauthorizedException('Tài khoản hoặc mật khẩu không chính xác');
     }
-    
+
+    if (user.isWebsiteUser && !user.isEmailVerified) {
+      throw new UnauthorizedException('Email chưa được xác thực');
+    }
+
     return this.generateToken(user);
   }
 
   async register(registerDto: RegisterDto) {
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    const user = await this.userService.create({
-      ...registerDto,
-      verificationToken,
-      isEmailVerified: false,
-    });
-    
-    // Gửi email xác thực
-    if (user.email) {
-      await this.emailService.sendVerificationEmail(
-        user.email, 
+    const validateUser = await this.validateWebsiteUser(registerDto);
+    if (!validateUser) {
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      const user = await this.userService.create({
+        ...registerDto,
         verificationToken,
-        user.fullName || user.username
-      );
+        isEmailVerified: false,
+        isWebsiteUser: true
+      });
+
+
+      // Gửi email xác thực
+      if (user.email) {
+        await this.emailService.sendVerificationEmail(
+          user.email,
+          verificationToken,
+          user.fullName || user.username
+        );
+      }
+      return 'Email đã được gửi đến bạn';
+    }else{
+       return validateUser;
     }
-    return this.generateToken(user);
+  }
+
+  async resendEmail(resendEmailDto: ResendEmailDto) {
+    const { email } = resendEmailDto;
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('Email không tồn tại');
+    }
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    user.verificationToken = verificationToken;
+    await this.userService.update(user.id, user);
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      verificationToken,
+      user.fullName || user.username
+    );
   }
 
   async verifyEmail(token: string) {
@@ -112,7 +173,9 @@ export class AuthService {
       picture: user.picture,
       email: user.email,
       fullName: user.fullName,
-      googleId: user.googleId,
+      platformId: user.platformId,
+      isGoogleUser: user.isGoogleUser,
+      isFacebookUser: user.isFacebookUser,
     };
 
     // Tạo access token
@@ -122,7 +185,7 @@ export class AuthService {
 
     // Tạo refresh token
     const refreshToken = await this.createRefreshToken(user);
-    
+
     return {
       accessToken,
       refreshToken: refreshToken.token,
@@ -170,7 +233,9 @@ export class AuthService {
       picture: foundToken.user.picture,
       email: foundToken.user.email,
       fullName: foundToken.user.fullName,
-      googleId: foundToken.user.googleId,
+      platformId: foundToken.user.platformId,
+      isGoogleUser: foundToken.user.isGoogleUser,
+      isFacebookUser: foundToken.user.isFacebookUser,
     };
 
     // Tạo access token mới
@@ -199,5 +264,30 @@ export class AuthService {
       refreshToken.isRevoked = true;
       await this.refreshTokenRepository.save(refreshToken);
     }
+  }
+
+  async createTempToken(userInfo: any) {
+    const tempToken = crypto.randomBytes(32).toString('hex');
+
+    // Lưu thông tin vào bộ nhớ tạm thời
+    this.tempTokens.set(tempToken, {
+      user: userInfo.user,
+      accessToken: userInfo.accessToken,
+    });
+
+    // Tự động xóa sau 5 phút
+    setTimeout(() => {
+      this.tempTokens.delete(tempToken);
+    }, 5 * 60 * 1000);
+
+    return tempToken;
+  }
+
+  async getTempTokenInfo(tempToken: string) {
+    const info = this.tempTokens.get(tempToken);
+    if (!info) {
+      throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
+    }
+    return info;
   }
 } 

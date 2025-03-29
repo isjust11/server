@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dtos/auth.dto';
 import { Role } from '../entities/role.entity';
@@ -18,6 +18,9 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
       relations: ['roles'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
   }
 
@@ -29,10 +32,6 @@ export class UserService {
   }
 
   async create(createUserDto: RegisterDto): Promise<User> {
-    const existingUser = await this.findByUsername(createUserDto.username);
-    if (existingUser) {
-      throw new ConflictException('Username already exists');
-    }
 
     const user = this.userRepository.create({
       username: createUserDto.username,
@@ -40,10 +39,23 @@ export class UserService {
       fullName: createUserDto.fullName,
       email: createUserDto.email,
       isAdmin: createUserDto.isAdmin || false,
+      platformId: createUserDto.platformId,
+      picture: createUserDto.picture,
+      isGoogleUser: createUserDto.isGoogleUser || false,
+      isFacebookUser: createUserDto.isFacebookUser || false,
+      isAppleUser: createUserDto.isAppleUser || false,
+      isWebsiteUser: createUserDto.isWebsiteUser || false,
+      verificationToken: createUserDto.verificationToken,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     if (createUserDto.roleIds) {
-      const roles = await this.roleRepository.findByIds(createUserDto.roleIds);
+      const roles = await this.roleRepository.find({
+        where: {
+          id: In(createUserDto.roleIds),
+        },
+      });
       user.roles = roles;
     }
 
@@ -53,7 +65,7 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
     }
 
     if (updateUserDto.fullName !== undefined) {
@@ -68,8 +80,37 @@ export class UserService {
       user.isAdmin = updateUserDto.isAdmin;
     }
 
+    if (updateUserDto.platformId !== undefined) {
+
+      user.platformId = updateUserDto.platformId;
+    }
+
+    if (updateUserDto.picture !== undefined) {
+      user.picture = updateUserDto.picture;
+    }
+
+    if (updateUserDto.isGoogleUser !== undefined) {
+      user.isGoogleUser = updateUserDto.isGoogleUser;
+    }
+
+    if (updateUserDto.isFacebookUser !== undefined) {
+      user.isFacebookUser = updateUserDto.isFacebookUser;
+    }
+
+    if (updateUserDto.verificationToken !== undefined) {
+      user.verificationToken = updateUserDto.verificationToken;
+    }
+
+    if (updateUserDto.isEmailVerified !== undefined) {
+      user.isEmailVerified = updateUserDto.isEmailVerified;
+    }
+
+    user.updatedAt = new Date();
+
     if (updateUserDto.roleIds) {
-      const roles = await this.roleRepository.findByIds(updateUserDto.roleIds);
+      const roles = await this.roleRepository.find({
+        where: { id: In(updateUserDto.roleIds) },
+      });
       user.roles = roles;
     }
 
@@ -79,7 +120,7 @@ export class UserService {
   async remove(id: number): Promise<void> {
     const result = await this.userRepository.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
     }
   }
 
@@ -98,7 +139,7 @@ export class UserService {
   async blockUser(id: number): Promise<User> {
     const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
     }
     user.isBlocked = true;
     return this.userRepository.save(user);
@@ -107,7 +148,7 @@ export class UserService {
   async unblockUser(id: number): Promise<User> {
     const user = await this.findById(id);
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy tài khoản với ID ${id}`);
     }
     user.isBlocked = false;
     return this.userRepository.save(user);

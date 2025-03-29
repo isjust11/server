@@ -16,4 +16,30 @@ export class UpdateUserDto {
   @IsArray()
   @IsOptional()
   roleIds?: number[];
+
+  @IsString()
+  @IsOptional()
+  platformId?: string;
+
+  @IsString()
+  @IsOptional()
+  picture?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isGoogleUser?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isFacebookUser?: boolean;
+
+  @IsString()
+  @IsOptional()
+  verificationToken?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isEmailVerified?: boolean;
+
+
 } 

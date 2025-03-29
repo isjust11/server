@@ -55,8 +55,8 @@ export class MediaService {
         fs.unlinkSync(filePath);
       }
       await this.remove(id, userId);
-    } catch (error) {
-      throw new Error(`Failed to delete file: ${error.message}`);
+    } catch (_error) {
+      throw new Error(`Failed to delete file: ${_error.message}`);
     }
   }
 

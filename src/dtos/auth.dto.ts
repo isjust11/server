@@ -29,7 +29,7 @@ export class RegisterDto {
 
   @IsString()
   @IsOptional()
-  googleId?: string;
+  platformId?: string;
 
   @IsString()
   @IsOptional()
@@ -38,6 +38,10 @@ export class RegisterDto {
   @IsBoolean()
   @IsOptional()
   isGoogleUser?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isFacebookUser?: boolean;
 
   @IsString()
   @IsOptional()
@@ -50,6 +54,19 @@ export class RegisterDto {
   @IsArray()
   @IsOptional()
   roleIds?: number[];
+
+  @IsBoolean()
+  @IsOptional()
+  isAppleUser?: boolean;
+  
+  @IsBoolean()
+  @IsOptional()
+  isWebsiteUser?: boolean;
+}
+
+export class ResendEmailDto {
+  @IsString()
+  email: string;
 }
 
 export class JwtPayload {
@@ -58,5 +75,7 @@ export class JwtPayload {
   picture: string;
   email: string;
   fullName: string;
-  googleId: string;
+  platformId: string;
+  isFacebookUser: boolean;
+  isGoogleUser: boolean;
 } 
