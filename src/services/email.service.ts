@@ -45,4 +45,30 @@ export class EmailService {
       throw _error;
     }
   }
+
+  async sendForgotPasswordEmail(email: string, token: string, fullName: string) {
+    const verificationUrl = `${this.configService.get<string>('CLIENT_URL')}/reset-password?token=${token}`;
+
+    const templatePath = path.join(__dirname, '../templates/email/forgot-password.html');
+    let htmlContent = fs.readFileSync(templatePath, 'utf8');
+
+    htmlContent = htmlContent
+      .replace('{{fullName}}', fullName)
+      .replace(/{{verificationUrl}}/g, verificationUrl);
+
+    const mailOptions = {
+      from: this.configService.get<string>('EMAIL_USER'),
+      to: email,
+      subject: 'Khôi phục mật khẩu Easy Order',
+      html: htmlContent,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (_error) {
+      console.error('Error sending forgot password email:', _error);
+      throw _error;
+    }
+  }
 } 

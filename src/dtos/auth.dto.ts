@@ -7,6 +7,19 @@ export class LoginDto {
   @IsString()
   password: string;
 }
+export enum RegisterCode{
+  AccountValidated = 'account_validated',
+  ExistUsernameNotVerified = 'exist_username_not_verified',
+  ExistUsernameVerified = 'exist_username_verified',
+  ExistEmail = 'exist_email',
+  AccountIsExist = 'account_is_exist',
+  Ok = 'ok',
+}
+export class RegisterResultDto{
+  code: RegisterCode;
+  message: string;
+  data: any;
+}
 
 export class RegisterDto {
   @IsString()
@@ -20,8 +33,7 @@ export class RegisterDto {
   fullName?: string;
 
   @IsString()
-  @IsOptional()
-  email?: string;
+  email: string;
 
   @IsBoolean()
   @IsOptional()
@@ -67,6 +79,14 @@ export class RegisterDto {
 export class ResendEmailDto {
   @IsString()
   email: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  token: string;
+
+  @IsString()
+  password: string;
 }
 
 export class JwtPayload {

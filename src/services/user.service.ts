@@ -105,6 +105,10 @@ export class UserService {
       user.isEmailVerified = updateUserDto.isEmailVerified;
     }
 
+    if (updateUserDto.password !== undefined) {
+      user.password = updateUserDto.password;
+    }
+
     user.updatedAt = new Date();
 
     if (updateUserDto.roleIds) {
@@ -130,6 +134,10 @@ export class UserService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async findByEmailSocial(email: string, platformId: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email, platformId } });
   }
 
   async findByVerificationToken(token: string): Promise<User | null> {

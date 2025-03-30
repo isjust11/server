@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, UseGuards, Request, UseInterceptors, ClassSerializerInterceptor, Res, Query, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { LoginDto, RegisterDto, ResendEmailDto } from '../dtos/auth.dto';
+import { LoginDto, RegisterDto, ResendEmailDto, ResetPasswordDto } from '../dtos/auth.dto';
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
@@ -104,5 +104,17 @@ export class AuthController {
     }
     await this.authService.revokeRefreshToken(refreshToken);
     return { message: 'Đăng xuất thành công' };
+  }
+
+  @Public()
+  @Get('forgot-password')
+  async forgotPassword(@Query('username') username: string) {
+    return this.authService.forgotPassword(username);
+  }
+
+  @Public()
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
   }
 } 

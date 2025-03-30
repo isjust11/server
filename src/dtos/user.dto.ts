@@ -41,5 +41,9 @@ export class UpdateUserDto {
   @IsOptional()
   isEmailVerified?: boolean;
 
+  @IsString()
+  @IsOptional()
+  password?: string;
+
 
 } 
