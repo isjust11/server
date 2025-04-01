@@ -117,4 +117,10 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.password);
   }
+
+  @Public()
+  @Get('validate-token')
+  async validateToken(@Query('token') token: string) {
+    return this.authService.validateToken(token);
+  }
 } 

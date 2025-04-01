@@ -223,6 +223,9 @@ export class AuthService {
     // Tạo refresh token
     const refreshToken = await this.createRefreshToken(user);
 
+    // Cập nhật thời gian đăng nhập
+    user.lastLogin = new Date();
+    await this.userService.update(user.id, user);
     return {
       accessToken,
       refreshToken: refreshToken.token,
@@ -353,5 +356,14 @@ export class AuthService {
     user.password = password;
     await this.userService.update(user.id, user);
     return { message: 'Mật khẩu đã được khôi phục thành công' };
+  }
+
+  async validateToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
+    }
   }
 } 

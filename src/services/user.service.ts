@@ -58,6 +58,16 @@ export class UserService {
       });
       user.roles = roles;
     }
+    if(user.roles.length === 0){
+      const defaultRole = await this.roleRepository.findOne({
+        where: {
+          code: 'CUSTOMER',
+        },
+      });
+      if (defaultRole) {
+        user.roles = [defaultRole];
+      }
+    }
 
     return this.userRepository.save(user);
   }
@@ -107,6 +117,10 @@ export class UserService {
 
     if (updateUserDto.password !== undefined) {
       user.password = updateUserDto.password;
+    }
+
+    if (updateUserDto.lastLogin !== undefined) {
+      user.lastLogin = updateUserDto.lastLogin;
     }
 
     user.updatedAt = new Date();

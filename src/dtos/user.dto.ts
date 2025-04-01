@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsArray, IsDate } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -44,6 +44,10 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   password?: string;
+
+  @IsDate()
+  @IsOptional()
+  lastLogin?: Date;
 
 
 } 
