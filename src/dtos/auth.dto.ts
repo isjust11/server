@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsBoolean, IsArray } from 'class-validator';
+import { Role } from 'src/entities/role.entity';
 
 export class LoginDto {
   @IsString()
@@ -98,4 +99,6 @@ export class JwtPayload {
   platformId: string;
   isFacebookUser: boolean;
   isGoogleUser: boolean;
+  isAdmin: boolean;
+  roles: Role[];
 } 

@@ -88,7 +88,8 @@ export class AuthController {
     return this.authService.getTempTokenInfo(token);
   }
 
-  @Post('refresh')
+  @Public()
+  @Post('refresh-token')
   async refreshToken(@Body('refreshToken') refreshToken: string) {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token is required');

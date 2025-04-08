@@ -28,7 +28,6 @@ import { Media } from './entities/media.entity';
 import { ConfigModule } from '@nestjs/config';
 import { PermissionController } from './controllers/permission.controller';
 import { RoleController } from './controllers/role.controller';
-import { ExampleController } from './controllers/example.controller';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { RoleService } from './services/role.service';
@@ -91,8 +90,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     MediaController,
     PermissionController,
     RoleController,
-    ExampleController,
-
   ],
   providers: [
     AppService,

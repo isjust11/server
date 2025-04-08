@@ -143,15 +143,15 @@ export class UserService {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({ where: { username }, relations: ['roles'] });
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ where: { email }, relations: ['roles'] });
   }
 
   async findByEmailSocial(email: string, platformId: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email, platformId } });
+    return this.userRepository.findOne({ where: { email, platformId }, relations: ['roles'] });
   }
 
   async findByVerificationToken(token: string): Promise<User | null> {

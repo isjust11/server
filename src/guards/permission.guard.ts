@@ -23,16 +23,16 @@ export class PermissionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.roleId) {
+    if (!user || !user.roles) {
       return false;
     }
 
-    const role = await this.roleService.findById(user.roleId);
+    const role = await this.roleService.findById(user.roles[0].id);
     if (!role) {
       return false;
     }
 
-    const userPermissions = role.permissions.map(permission => permission.code);
-    return requiredPermissions.every(permission => userPermissions.includes(permission));
+    const userPermissions = role.permissions.filter(permission => permission.isActive === true).map(permission => permission.name);
+    return requiredPermissions.some(permission => userPermissions.includes(permission));
   }
 } 

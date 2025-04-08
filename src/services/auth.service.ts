@@ -11,7 +11,7 @@ import { RefreshToken } from '../entities/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
-  private tempTokens: Map<string, { user: any; accessToken: string }> = new Map();
+  private tempTokens: Map<string, { user: any; accessToken: string, refreshToken: string }> = new Map();
 
   constructor(
     private userService: UserService,
@@ -213,12 +213,12 @@ export class AuthService {
       platformId: user.platformId,
       isGoogleUser: user.isGoogleUser,
       isFacebookUser: user.isFacebookUser,
+      isAdmin: user.isAdmin,
+      roles: user.roles,
     };
 
     // Tạo access token
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m' // Access token hết hạn sau 15 phút
-    });
+    const accessToken = this.jwtService.sign(payload);
 
     // Tạo refresh token
     const refreshToken = await this.createRefreshToken(user);
@@ -229,13 +229,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken: refreshToken.token,
-      user: {
-        id: user.id,
-        username: user.username,
-        fullName: user.fullName,
-        isAdmin: user.isAdmin,
-        picture: user.picture,
-      },
+      user: user,
     };
   }
 
@@ -256,7 +250,7 @@ export class AuthService {
   async refreshAccessToken(refreshTokenString: string) {
     const foundToken = await this.refreshTokenRepository.findOne({
       where: { token: refreshTokenString, isRevoked: false },
-      relations: ['user']
+      relations: ['user', 'user.roles']
     });
 
     if (!foundToken) {
@@ -276,22 +270,17 @@ export class AuthService {
       platformId: foundToken.user.platformId,
       isGoogleUser: foundToken.user.isGoogleUser,
       isFacebookUser: foundToken.user.isFacebookUser,
+      isAdmin: foundToken.user.isAdmin,
+      roles: foundToken.user.roles,
     };
 
     // Tạo access token mới
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m'
-    });
+    const accessToken = this.jwtService.sign(payload);
 
     return {
       accessToken,
-      user: {
-        id: foundToken.user.id,
-        username: foundToken.user.username,
-        fullName: foundToken.user.fullName,
-        isAdmin: foundToken.user.isAdmin,
-        picture: foundToken.user.picture,
-      }
+      refreshToken: foundToken.token,
+      user: foundToken.user
     };
   }
 
@@ -313,6 +302,7 @@ export class AuthService {
     this.tempTokens.set(tempToken, {
       user: userInfo.user,
       accessToken: userInfo.accessToken,
+      refreshToken: userInfo.refreshToken
     });
 
     // Tự động xóa sau 5 phút
