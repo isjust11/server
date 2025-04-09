@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 //config env
 dotenv.config();
 
@@ -22,8 +23,9 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
-  console.log('Server configuration completed');
-  console.log('JWT Secret:', process.env.JWT_SECRET);
+  
+  app.useWebSocketAdapter(new IoAdapter(app));
+
   await app.listen(process.env.PORT ?? 4200);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
