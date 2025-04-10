@@ -41,7 +41,7 @@ import { JwtStrategy } from './guards/jwt.strategy';
 import { GoogleStrategy } from './guards/strategies/google.strategy';
 import { FacebookStrategy } from './guards/strategies/facebook.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
+import { NotificationModule } from './modules/notification.module';
 @Module({
   imports: [
     ConfigModule,
@@ -78,6 +78,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       Role,
       RefreshToken
     ]),
+    NotificationModule,
     // AuthModule,
   ],
   controllers: [
