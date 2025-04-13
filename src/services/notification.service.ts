@@ -58,7 +58,7 @@ export class NotificationService {
   }
 
   // Gửi thông báo lỗi hệ thống
-  async notifySystemError(data: Omit<NotificationData, 'event' | 'room' | 'message' | 'status' | 'type' | 'priority'>) {
+  async notifySystemError(data: NotificationData) {
     const notificationData: NotificationData = {
       ...data,
       event: NOTIFICATION_EVENTS.SYSTEM_ERROR,

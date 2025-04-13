@@ -1,7 +1,8 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { NotificationService } from '../services/notification.service';
-import { NotificationType, NotificationPriority } from '../enums/notification.enum';
+import { NotificationType, NotificationPriority, NotificationStatus } from '../enums/notification.enum';
+import { NOTIFICATION_EVENTS, NOTIFICATION_ROOMS } from 'src/constants/notification.constants';
 
 @Catch(HttpException)
 export class NotificationFilter implements ExceptionFilter {
@@ -19,6 +20,13 @@ export class NotificationFilter implements ExceptionFilter {
       userId: request.user?.id || 'unknown',
       userName: request.user?.name || 'unknown',
       error: exception.message,
+      event: NOTIFICATION_EVENTS.SYSTEM_ERROR,
+      room: NOTIFICATION_ROOMS.MANAGER_ROOM,
+      message: 'Có lỗi hệ thống xảy ra',
+      timestamp: new Date(),
+      status: NotificationStatus.FAILED,
+      type: NotificationType.SYSTEM,
+      priority: NotificationPriority.LOW
     });
 
     response.status(status).json({

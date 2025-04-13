@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { NavigatorService } from '../services/navigator.service';
 import { Navigator } from '../entities/navigator.entity';
+import { AssignRoleDto } from '../dtos/assign-role.dto';
 
 @Controller('navigator')
 export class NavigatorController {
@@ -29,5 +30,20 @@ export class NavigatorController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.navigatorService.remove(+id);
+    }
+
+    @Post(':id/roles')
+    assignRoles(@Param('id') id: string, @Body() assignRoleDto: AssignRoleDto) {
+        return this.navigatorService.assignRoles(+id, assignRoleDto);
+    }
+
+    @Delete(':id/roles')
+    removeRoles(@Param('id') id: string, @Body() roleIds: number[]) {
+        return this.navigatorService.removeRoles(+id, roleIds);
+    }
+
+    @Get(':id/roles')
+    getNavigatorRoles(@Param('id') id: string) {
+        return this.navigatorService.getNavigatorRoles(+id);
     }
 }

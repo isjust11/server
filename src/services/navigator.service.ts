@@ -2,12 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Navigator } from '../entities/navigator.entity';
 import { IsNull, Repository } from 'typeorm';
+import { Role } from '../entities/role.entity';
+import { AssignRoleDto } from 'src/dtos/assign-role.dto';
 
 @Injectable()
 export class NavigatorService {
     constructor(
         @InjectRepository(Navigator)
         private navigatorRepository: Repository<Navigator>,
+        @InjectRepository(Role)
+        private roleRepository: Repository<Role>,
     ) {}
 
     async create(createNavigatorDto: Partial<Navigator>): Promise<Navigator> {
@@ -46,5 +50,50 @@ export class NavigatorService {
         if (result.affected === 0) {
             throw new NotFoundException(`Navigator with ID ${id} not found`);
         }
+    }
+
+    async assignRoles(navigatorId: number, assignRoleDto: AssignRoleDto) {
+        const navigator = await this.navigatorRepository.findOne({
+            where: { id: navigatorId },
+            relations: ['roles'],
+        });
+
+        if (!navigator) {
+            throw new Error('Navigator not found');
+        }
+
+        const roles = await this.roleRepository.findByIds(assignRoleDto.roleIds);
+        navigator.roles = roles;
+
+        return this.navigatorRepository.save(navigator);
+    }
+
+    async removeRoles(navigatorId: number, roleIds: number[]) {
+        const navigator = await this.navigatorRepository.findOne({
+            where: { id: navigatorId },
+            relations: ['roles'],
+        });
+
+        if (!navigator) {
+            throw new Error('Navigator not found');
+        }
+        navigator.roles = navigator.roles.filter(
+            role => !roleIds.includes(role.id)
+        );
+
+        return this.navigatorRepository.save(navigator);
+    }
+
+    async getNavigatorRoles(navigatorId: number) {
+        const navigator = await this.navigatorRepository.findOne({
+            where: { id: navigatorId },
+            relations: ['roles'],
+        });
+
+        if (!navigator) {
+            throw new Error('Navigator not found');
+        }
+
+        return navigator.roles;
     }
 }

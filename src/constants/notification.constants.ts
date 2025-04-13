@@ -26,4 +26,5 @@ export const NOTIFICATION_MESSAGES = {
   NEW_ORDER: 'Có đơn hàng mới cần chế biến',
   FOOD_READY: 'Món ăn đã sẵn sàng để phục vụ',
   PAYMENT_RECEIVED: 'Có hóa đơn thanh toán mới',
+  SYSTEM_ERROR: 'Có lỗi hệ thống xảy ra',
 } as const; 

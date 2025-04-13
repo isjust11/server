@@ -13,6 +13,7 @@ export interface NotificationData {
   type: NotificationType;
   priority: NotificationPriority;
   additionalData?: any;
+  error?: string;
 }
 
 export interface JoinRoomData {

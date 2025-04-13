@@ -1,6 +1,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { NOTIFICATION_EVENTS } from '../constants/notification.constants';
 
+export const MESSAGE_METADATA = 'message_metadata';
+
 type NotificationEvent = typeof NOTIFICATION_EVENTS[keyof typeof NOTIFICATION_EVENTS];
 
 export const Message = createParamDecorator(
