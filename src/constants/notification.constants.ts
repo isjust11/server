@@ -11,6 +11,8 @@ export const NOTIFICATION_EVENTS = {
 
   // Events từ server
   NEW_ORDER: 'newOrder',
+  ORDER_UPDATED: 'orderUpdated',
+  ORDER_DELETED: 'orderDeleted',
   FOOD_READY: 'foodReady',
   PAYMENT_RECEIVED: 'paymentReceived',
   SYSTEM_ERROR: 'systemError',

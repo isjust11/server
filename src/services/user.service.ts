@@ -58,13 +58,21 @@ export class UserService {
       });
       user.roles = roles;
     }
-    if(user.roles.length === 0){
+    if(user.roles == undefined || user.roles.length === 0){
       const defaultRole = await this.roleRepository.findOne({
         where: {
           code: 'CUSTOMER',
         },
       });
-      if (defaultRole) {
+      if (!defaultRole) {
+        const roleCustomer =new Role();
+        roleCustomer.code = 'CUSTOMER';
+        roleCustomer.name = 'Khách hàng';
+        roleCustomer.description = 'Khách hàng';
+         this.roleRepository.create(roleCustomer);
+        await this.roleRepository.save(roleCustomer);
+        user.roles = [roleCustomer];
+      } else {
         user.roles = [defaultRole];
       }
     }
