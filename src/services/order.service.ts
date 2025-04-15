@@ -5,6 +5,13 @@ import { Order } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
 import { FoodItem } from '../entities/food-item.entity';
 import { CreateOrderDto, UpdateOrderStatusDto } from '../dtos/order.dto';
+import { NotificationPriority } from 'src/enums/notification.enum';
+import { NotificationType } from 'src/enums/notification.enum';
+import { NOTIFICATION_MESSAGES, NOTIFICATION_EVENTS } from 'src/constants/notification.constants';
+import { NotificationData } from 'src/interfaces/notification.interface';
+import { NOTIFICATION_ROOMS } from 'src/constants/notification.constants';
+import { NotificationStatus } from 'src/enums/notification.enum';
+import { NotificationsGateway } from 'src/gateways/notifications.gateway';
 
 @Injectable()
 export class OrderService {
@@ -15,6 +22,7 @@ export class OrderService {
     private orderItemRepository: Repository<OrderItem>,
     @InjectRepository(FoodItem)
     private foodItemRepository: Repository<FoodItem>,
+    private notificationsGateway: NotificationsGateway,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -48,7 +56,22 @@ export class OrderService {
     }
 
     savedOrder.totalAmount = totalAmount;
-    return this.orderRepository.save(savedOrder);
+    const result = await this.orderRepository.save(savedOrder);
+    const notificationData: NotificationData = {
+      event: NOTIFICATION_EVENTS.NEW_ORDER,
+      room: NOTIFICATION_ROOMS.MANAGER_ROOM,
+      message: NOTIFICATION_MESSAGES.NEW_ORDER,
+      timestamp: new Date(),
+      orderId: savedOrder.id.toString(),
+      userId: 'system',
+      userName: 'System',
+      status: NotificationStatus.PENDING,
+      type: NotificationType.ORDER,
+      priority: NotificationPriority.MEDIUM,
+      additionalData: savedOrder
+    };
+    this.notificationsGateway.notifyAll(NOTIFICATION_EVENTS.NEW_ORDER, notificationData);
+    return result;
   }
 
   findAll(): Promise<Order[]> {
