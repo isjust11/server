@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common'
 import { AppService } from '../app.service';
 import { TableService } from '../services/table.service';
 import { Table } from '../entities/table.entity';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('table')
 export class TableController {
@@ -11,8 +12,8 @@ export class TableController {
   ) {}
 
   @Get()
-  async getTables(): Promise<Table[]> {
-    return this.tableService.findAll();
+  async getTables(@Body('pagingParam') filter: PaginationParams){
+    return this.tableService.findAllWithPagination(filter);
   }
 
   @Post()

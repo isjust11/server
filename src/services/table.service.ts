@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Table } from '../entities/table.entity';
 import { NotificationsGateway } from '../gateways/notifications.gateway';
 import { NotificationData } from '../interfaces/notification.interface';
 import { NOTIFICATION_EVENTS, NOTIFICATION_ROOMS, NOTIFICATION_MESSAGES } from '../constants/notification.constants';
 import { NotificationStatus, NotificationType, NotificationPriority } from '../enums/notification.enum';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class TableService {
@@ -14,6 +15,33 @@ export class TableService {
     private tableRepository: Repository<Table>,
     private notificationsGateway: NotificationsGateway,
   ) {}
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Table>> {
+    const { page = 1, limit = 10, search = '' } = params;
+    const skip = (page - 1) * limit;
+
+    const whereConditions = search ? [
+      { name: Like(`%${search}%`) },
+      { description: Like(`%${search}%`) }
+    ] : {};
+
+    const [data, total] = await this.tableRepository.findAndCount({
+      where: whereConditions,
+      skip,
+      take: limit,
+      order: {
+        id: 'DESC'
+      }
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
 
   findAll(): Promise<Table[]> {
     return this.tableRepository.find();
