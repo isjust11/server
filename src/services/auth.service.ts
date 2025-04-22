@@ -205,6 +205,7 @@ export class AuthService {
 
   async generateToken(user: User) {
     const payload: JwtPayload = {
+      id: user.id,
       username: user.username,
       sub: user.id,
       picture: user.picture,
@@ -262,6 +263,7 @@ export class AuthService {
     }
 
     const payload: JwtPayload = {
+      id: foundToken.user.id,
       username: foundToken.user.username,
       sub: foundToken.user.id,
       picture: foundToken.user.picture,

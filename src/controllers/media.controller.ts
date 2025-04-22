@@ -34,7 +34,7 @@ export class MediaController {
     file: Express.Multer.File,
     @Request() req,
   ): Promise<Media> {
-    return this.mediaService.uploadFile(file, req.user.userId);
+    return this.mediaService.uploadFile(file, req.user.id);
   }
 
   @Put(':id')

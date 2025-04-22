@@ -91,6 +91,7 @@ export class ResetPasswordDto {
 }
 
 export class JwtPayload {
+  id: number;
   username: string;
   sub: number;
   picture: string;
