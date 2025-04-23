@@ -34,7 +34,7 @@ export class CategoryTypeService {
     return this.findOne(id);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.categoryTypeRepository.delete(id);
+  async remove(id: string) {
+    return await this.categoryTypeRepository.delete(id);
   }
 } 
