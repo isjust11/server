@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Category } from './category.entity';
 
 @Entity('category_types')
 export class CategoryType {
@@ -14,9 +15,15 @@ export class CategoryType {
   @Column({ nullable: true })
   description: string;
 
+  @Column({default: true})
+  isActive: boolean; // Assuming this is a string, adjust as necessary
+
   @CreateDateColumn()
   createDate: Date;
 
   @UpdateDateColumn()
   updateDate: Date;
+
+  @OneToMany(() => Category, (category) => category.type, { cascade: true })
+  categories: Category[];
 }

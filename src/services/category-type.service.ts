@@ -19,7 +19,10 @@ export class CategoryTypeService {
   }
 
   async findByCode(code: string): Promise<CategoryType | null> {
-    return this.categoryTypeRepository.findOneBy({ code });
+    return this.categoryTypeRepository.findOne({ 
+      where: { code },
+      relations: ['categories'] // Assuming you want to load related categories as well
+    });
   }
 
   async create(categoryType: CategoryType): Promise<CategoryType> {

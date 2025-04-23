@@ -46,6 +46,8 @@ import { Category } from './entities/category.entity';
 import { CategoryController } from './controllers/category.controller';
 import { CategoryService } from './services/category.service';
 import { CategoryType } from './entities/category-type.entity';
+import { CategoryTypeController } from './controllers/category-type.controller';
+import { CategoryTypeService } from './services/category-type.service';
 @Module({
   imports: [
     ConfigModule,
@@ -112,6 +114,7 @@ import { CategoryType } from './entities/category-type.entity';
     PermissionController,
     RoleController,
     CategoryController,
+    CategoryTypeController,
   ],
   providers: [
     AppService,
@@ -130,6 +133,7 @@ import { CategoryType } from './entities/category-type.entity';
     GoogleStrategy,
     FacebookStrategy,
     CategoryService,
+    CategoryTypeService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
