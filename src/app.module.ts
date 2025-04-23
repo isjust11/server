@@ -42,6 +42,10 @@ import { GoogleStrategy } from './guards/strategies/google.strategy';
 import { FacebookStrategy } from './guards/strategies/facebook.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { NotificationModule } from './modules/notification.module';
+import { Category } from './entities/category.entity';
+import { CategoryController } from './controllers/category.controller';
+import { CategoryService } from './services/category.service';
+import { CategoryType } from './entities/category-type.entity';
 @Module({
   imports: [
     ConfigModule,
@@ -61,22 +65,38 @@ import { NotificationModule } from './modules/notification.module';
       username: 'root',
       password: 'Hg!@1997',
       database: 'easy_order',
-      entities: [Table, Navigator, User, FoodItem, Order, OrderItem, Guest, Media, Permission, Role, RefreshToken ],
+      entities: [Table,
+        Navigator,
+        User,
+        FoodItem,
+        Order,
+        OrderItem,
+        Guest,
+        Media,
+        Permission,
+        Role,
+        RefreshToken,
+        Category,
+        CategoryType,
+      ],
       synchronize: true,
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       migrationsRun: true,
     }),
-    TypeOrmModule.forFeature([Table,
+    TypeOrmModule.forFeature([
+      Table,
       Navigator,
       FoodItem,
       Order,
       OrderItem,
-      User, 
-      Guest, 
-      Media, 
-      Permission, 
+      User,
+      Guest,
+      Media,
+      Permission,
       Role,
-      RefreshToken
+      RefreshToken,
+      Category,
+      CategoryType
     ]),
     NotificationModule,
     // AuthModule,
@@ -91,6 +111,7 @@ import { NotificationModule } from './modules/notification.module';
     MediaController,
     PermissionController,
     RoleController,
+    CategoryController,
   ],
   providers: [
     AppService,
@@ -108,6 +129,7 @@ import { NotificationModule } from './modules/notification.module';
     JwtStrategy,
     GoogleStrategy,
     FacebookStrategy,
+    CategoryService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
