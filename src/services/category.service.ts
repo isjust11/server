@@ -23,13 +23,6 @@ export class CategoryService {
     });
   }
 
-  async findByCode(code: string): Promise<Category | null> {
-    return this.categoryRepository.findOne({ 
-      where: { code },
-      relations: ['type']
-    }) || null;
-  }
-
   async create(category: Partial<Category>): Promise<Category | null> {
     const newCategory = this.categoryRepository.create(category);
     return this.categoryRepository.save(newCategory);

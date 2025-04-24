@@ -7,15 +7,12 @@ export class Category {
   id: string;
 
   @Column()
-  code: string;
-
-  @Column()
   name: string;
 
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({default:''})
   icon: string;
 
   @Column({ default: true })

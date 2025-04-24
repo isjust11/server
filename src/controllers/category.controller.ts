@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Request } from '@nestjs/common';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../entities/category.entity';
-import { Request as ExpressRequest } from 'express';
 
 @Controller('categories')
 export class CategoryController {
@@ -17,14 +16,10 @@ export class CategoryController {
     return this.categoryService.findOne(id);
   }
 
-  @Get('code/:code')
-  async findByCode(@Param('code') code: string): Promise<Category | null> {
-    return this.categoryService.findByCode(code);
-  }
-
   @Post()
-  async create(@Body() category: Category, @Request() req: ExpressRequest): Promise<Category | null> {
+  async create(@Body() category: Category, @Request() req): Promise<Category | null> {
     category.createDate = new Date();
+    category.createBy = req?.user?.id; // Assuming req.user.id contains the ID of the user creating the category
     return this.categoryService.create(category);
   }
 

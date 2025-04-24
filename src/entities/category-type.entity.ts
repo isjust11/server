@@ -13,6 +13,9 @@ export class CategoryType {
   name: string;
 
   @Column({ nullable: true })
+  icon: string;
+
+  @Column({ nullable: true })
   description: string;
 
   @Column({default: true})
