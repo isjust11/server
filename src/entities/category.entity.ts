@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { CategoryType } from './category-type.entity';
+import { FoodItem } from './food-item.entity';
 
 @Entity()
 export class Category {
@@ -20,6 +21,15 @@ export class Category {
 
   @ManyToOne(() => CategoryType, (cat) => cat.categories)
   type: CategoryType;
+
+  @OneToMany(() => FoodItem, foodItem => foodItem.foodCategory)
+  foodItems: FoodItem[];
+
+  @OneToMany(() => FoodItem, foodItem => foodItem.statusCategory)
+  foodStatusItems: FoodItem[];
+
+  @OneToMany(() => FoodItem, foodItem => foodItem.unitCategory)
+  foodUnitItems: FoodItem[];
 
   @Column()
   createDate: Date;

@@ -1,10 +1,11 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, IsUrl } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsUrl, IsDate, Min } from 'class-validator';
 
 export class CreateFoodItemDto {
   @IsString()
   name: string;
 
   @IsNumber()
+  @Min(0)
   price: number;
 
   @IsString()
@@ -21,7 +22,40 @@ export class CreateFoodItemDto {
 
   @IsString()
   @IsOptional()
-  category?: string;
+  foodCategoryId?: string;
+
+  @IsString()
+  @IsOptional()
+  statusCategoryId?: string;
+
+  @IsString()
+  @IsOptional()
+  unitCategoryId?: string;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  preparationTime?: number;
+
+  @IsNumber()
+  @IsOptional()
+  createBy?: number;
+
+  @IsNumber()
+  @IsOptional()
+  orderCount?: number;
+
+  @IsNumber()
+  @IsOptional()
+  discountPercent?: number;
+
+  @IsDate()
+  @IsOptional()
+  discountStartTime?: Date;
+
+  @IsDate()
+  @IsOptional()
+  discountEndTime?: Date;
 }
 
 export class UpdateFoodItemDto extends CreateFoodItemDto {} 
