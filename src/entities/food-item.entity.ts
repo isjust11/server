@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, Index, Check } from 'typeorm';
 import { Category } from './category.entity';
+import { Length, MaxLength } from 'class-validator';
 
 //entity món ăn
 @Entity()
@@ -18,6 +19,9 @@ export class FoodItem {
   price: number;
 
   @Column({ nullable: true })
+  @MaxLength(2500, {
+    message: 'Mô tả không được quá 2500 ký tự',
+  })
   description?: string;
 
   @Column({ nullable: true })
@@ -57,7 +61,7 @@ export class FoodItem {
   @Column({ nullable: true })
   createBy: number;
 
-  @Column()
+  @Column({ nullable: true })
   orderCount: number;
 
   @Column({ nullable: true })
