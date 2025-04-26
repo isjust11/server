@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Category } from './category.entity';
 
-@Entity('category_types')
+@Entity()
 export class CategoryType {
   @PrimaryGeneratedColumn('uuid')
   id: string;

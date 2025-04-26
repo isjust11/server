@@ -1,6 +1,6 @@
 export interface PaginationParams {
     page?: number;
-    limit?: number;
+    size?: number;
     search?: string;
   }
   
@@ -8,7 +8,7 @@ export interface PaginationParams {
     data: T[];
     total: number;
     page: number;
-    limit: number;
+    size: number;
     totalPages: number;
   }
   

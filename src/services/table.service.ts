@@ -17,8 +17,8 @@ export class TableService {
   ) {}
 
   async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Table>> {
-    const { page = 1, limit = 10, search = '' } = params;
-    const skip = (page - 1) * limit;
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
 
     const whereConditions = search ? [
       { name: Like(`%${search}%`) },
@@ -27,8 +27,9 @@ export class TableService {
 
     const [data, total] = await this.tableRepository.findAndCount({
       where: whereConditions,
+      relations: ['tableStatus', 'tableType', 'tableArea'],
       skip,
-      take: limit,
+      take: size,
       order: {
         id: 'DESC'
       }
@@ -38,8 +39,8 @@ export class TableService {
       data,
       total,
       page,
-      limit,
-      totalPages: Math.ceil(total / limit)
+      size: size,
+      totalPages: Math.ceil(total / size)
     };
   }
 
@@ -104,5 +105,9 @@ export class TableService {
       additionalData: { id }
     };
     this.notificationsGateway.notifyAll('tableDeleted', notificationData);
+  }
+
+  findOne(id: number): Promise<Table | null> {
+    return this.tableRepository.findOne({ where: { id } });
   }
 } 

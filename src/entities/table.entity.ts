@@ -9,7 +9,7 @@ export class Table {
   @Column()
   name: string;
 
-  @Column()
+  @Column({nullable: true})
   imageUrl: string; // URL của hình ảnh bàn
 
   // Số lượng ghế ngồi
@@ -28,14 +28,17 @@ export class Table {
   @JoinColumn({ name: 'areaId' })
   tableArea: Category;
 
-  @Column()
+  @Column({nullable: true})
   areaId: string; // ID của khu vực bàn
 
-  @Column()
+  @Column({nullable: true})
   tableStatusId: string;
 
-  @Column()
+  @Column({nullable: true})
   tableTypeId: string;  
+
+  @Column({default: true})
+  isAvailable: boolean;  
 
   @Column({ nullable: true })
   description?: string;
