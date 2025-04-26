@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, UseInterceptors, Query } from '@nestjs/common';
 import { AppService } from '../app.service';
 import { TableService } from '../services/table.service';
 import { Table } from '../entities/table.entity';
 import { PaginationParams } from 'src/dtos/filter.dto';
 import { EncryptionInterceptor } from '../interceptors/encryption.interceptor';
-import { DecryptId } from '../decorators/decrypt.decorator';
+import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 
 @Controller('table')
 @UseInterceptors(EncryptionInterceptor)
@@ -30,17 +30,20 @@ export class TableController {
   }
 
   @Put(':id')
-  async updateTable(@Param('id') id: number, @Body() table: Table): Promise<Table | null> {
-    return this.tableService.update(id, table);
+  async updateTable(@Param('id') id: string, @Body() table: Table): Promise<Table | null> {
+    const decodedId = Base64EncryptionUtil.decrypt(id);
+    return this.tableService.update(parseInt(decodedId), table);
   }
 
   @Delete(':id')
-  async deleteTable(@Param('id') id: number): Promise<void> {
-    return this.tableService.remove(id);
+  async deleteTable(@Param('id') id: string): Promise<void> {
+    const decodedId = Base64EncryptionUtil.decrypt(id);
+    return this.tableService.remove(parseInt(decodedId));
   }
 
   @Get(':id')
-  findOne(@DecryptId('id') id: number) {
-    return this.tableService.findOne(id);
+  getTable(@Param('id') id: string) {
+    const decodedId = Base64EncryptionUtil.decrypt(id);
+    return this.tableService.findOne(parseInt(decodedId));
   }
 }
