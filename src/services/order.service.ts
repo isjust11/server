@@ -92,9 +92,8 @@ export class OrderService {
 
     return order;
   }
-
-  async updateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto): Promise<Order> {
-    await this.orderRepository.update(id, updateOrderStatusDto);
+  async updateStatus(id: number, updateOrderStatusDto: string): Promise<Order> {
+    await this.orderRepository.update(id, { statusId: updateOrderStatusDto });
     return this.findOne(id);
   }
 

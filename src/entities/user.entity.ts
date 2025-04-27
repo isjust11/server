@@ -1,7 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, ManyToMany, JoinTable, BeforeUpdate } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, ManyToMany, JoinTable, BeforeUpdate, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from './role.entity';
 import { Exclude } from 'class-transformer';
+import { Reservation } from './reservation.entity';
+import { Order } from './order.entity';
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -72,6 +75,12 @@ export class User {
     },
   })
   roles: Role[];
+
+  @OneToMany(() => Reservation, reservation => reservation.account)
+  reservations: Reservation[];
+
+  @OneToMany(() => Order, order => order.account)
+  orders: Order[];
 
   @BeforeInsert()
   @BeforeUpdate()

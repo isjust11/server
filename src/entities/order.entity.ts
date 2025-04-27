@@ -1,41 +1,49 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
-import { OrderItem } from './order-item.entity';
-import { User } from './user.entity';
-import { Guest } from './guest.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from "typeorm";
+import { User } from "./user.entity";
+import { Category } from "./category.entity";
+import { OrderItem } from "./order-item.entity";
+import { Table } from "./table.entity";
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ManyToOne(() => User, user => user.orders)
+  @JoinColumn({ name: 'userId' })
+  account: User;
+
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => Table)
+  @JoinColumn({ name: 'tableId' })
+  table: Table;
+
   @Column()
   tableId: number;
 
-  @Column({ default: 'pending' })
-  status: 'pending' | 'preparing' | 'ready' | 'served' | 'completed' | 'cancelled';
+  @ManyToOne(() => Category, category => category.order)
+  @JoinColumn({ name: 'statusId' })
+  orderStatus: Category;
+
+  @Column()
+  statusId: string;
+
+  @OneToMany(() => OrderItem, orderItem => orderItem.order)
+  orderItems: OrderItem[];
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   totalAmount: number;
 
   @Column({ nullable: true })
-  note?: string;
+  paymentMethod: string;
 
   @Column({ nullable: true })
-  userId?: number;
+  paymentStatus: string;
 
   @Column({ nullable: true })
-  guestId?: number;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user?: User;
-
-  @ManyToOne(() => Guest)
-  @JoinColumn({ name: 'guestId' })
-  guest?: Guest;
-
-  @OneToMany(() => OrderItem, orderItem => orderItem.order)
-  orderItems: OrderItem[];
+  note: string;
 
   @CreateDateColumn()
   createdAt: Date;

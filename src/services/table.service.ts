@@ -14,7 +14,7 @@ export class TableService {
     @InjectRepository(Table)
     private tableRepository: Repository<Table>,
     private notificationsGateway: NotificationsGateway,
-  ) {}
+  ) { }
 
   async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Table>> {
     const { page = 1, size = 10, search = '' } = params;
@@ -108,6 +108,9 @@ export class TableService {
   }
 
   findOne(id: number): Promise<Table | null> {
-    return this.tableRepository.findOne({ where: { id } });
+    return this.tableRepository.findOne({
+      where: { id },
+      relations: ['tableStatus', 'tableType', 'tableArea']
+    });
   }
 } 

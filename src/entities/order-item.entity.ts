@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Order } from './order.entity';
-import { FoodItem } from './food-item.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Order } from "./order.entity";
+import { FoodItem } from "./food-item.entity";
 
 @Entity()
 export class OrderItem {
@@ -8,10 +8,18 @@ export class OrderItem {
   id: number;
 
   @ManyToOne(() => Order, order => order.orderItems)
+  @JoinColumn({ name: 'orderId' })
   order: Order;
 
+  @Column()
+  orderId: number;
+
   @ManyToOne(() => FoodItem)
+  @JoinColumn({ name: 'foodItemId' })
   foodItem: FoodItem;
+
+  @Column()
+  foodItemId: number;
 
   @Column()
   quantity: number;
@@ -19,6 +27,21 @@ export class OrderItem {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  totalPrice: number;
+
   @Column({ nullable: true })
-  note?: string;
+  note: string;
+
+  @Column({ default: false })
+  isCompleted: boolean;
+
+  @Column({ nullable: true })
+  completedAt: Date;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 } 

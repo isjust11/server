@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne,JoinColumn } from 'typeorm';
 import { Category } from './category.entity';
+import { Reservation } from './reservation.entity';
 
 @Entity()
 export class Table {
@@ -28,6 +29,14 @@ export class Table {
   @JoinColumn({ name: 'areaId' })
   tableArea: Category;
 
+  @ManyToOne(() => Reservation, reservation => reservation.tableReservations)
+  @JoinColumn({ name: 'reservationId' })
+  reservation: Reservation;
+
+
+  @Column({nullable: true})
+  reservationId: number;
+
   @Column({nullable: true})
   areaId: string; // ID của khu vực bàn
 
@@ -43,7 +52,5 @@ export class Table {
   @Column({ nullable: true })
   description?: string;
 
-  @Column({ nullable: true })
-  qrCodeUrl?: string;
 } 
 

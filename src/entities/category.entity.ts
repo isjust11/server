@@ -1,7 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { CategoryType } from './category-type.entity';
 import { FoodItem } from './food-item.entity';
 import { Table } from './table.entity';
+import { Reservation } from './reservation.entity';
+import { Order } from './order.entity';
 
 @Entity()
 export class Category {
@@ -41,9 +43,21 @@ export class Category {
   @OneToMany(() => Table, table => table.tableArea)
   tableArea: Table[];
 
+  @OneToMany(() => Reservation, res => res.reservationStatus)
+  reservation: Reservation[];
+
+  @OneToMany(() => Order, order => order.orderStatus)
+  order: Order[];
+
   @Column()
   createDate: Date;
   
   @Column()
   createBy: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

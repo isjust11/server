@@ -48,6 +48,8 @@ import { CategoryService } from './services/category.service';
 import { CategoryType } from './entities/category-type.entity';
 import { CategoryTypeController } from './controllers/category-type.controller';
 import { CategoryTypeService } from './services/category-type.service';
+import { Reservation } from './entities/reservation.entity';
+import { History } from './entities/history.entity';
 @Module({
   imports: [
     ConfigModule,
@@ -80,6 +82,8 @@ import { CategoryTypeService } from './services/category-type.service';
         RefreshToken,
         Category,
         CategoryType,
+        Reservation,
+        History
       ],
       synchronize: true,
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
@@ -98,7 +102,9 @@ import { CategoryTypeService } from './services/category-type.service';
       Role,
       RefreshToken,
       Category,
-      CategoryType
+      CategoryType,
+      Reservation,
+      History
     ]),
     NotificationModule,
     // AuthModule,

@@ -22,7 +22,7 @@ export class OrderController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: UpdateOrderStatusDto) {
+  updateStatus(@Param('id') id: string, @Body() updateOrderStatusDto: string) {
     return this.orderService.updateStatus(+id, updateOrderStatusDto);
   }
 
