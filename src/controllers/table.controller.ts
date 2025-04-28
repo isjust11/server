@@ -15,7 +15,7 @@ export class TableController {
   ) {}
 
   @Get()
-  async getTables(@Param('page') page: number, @Param('size') size: number, @Param('search') search: string){
+  async getTables(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string){
     const filter: PaginationParams = {
       page: page || 1,
       size: size || 10,
