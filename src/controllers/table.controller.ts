@@ -24,6 +24,11 @@ export class TableController {
     return this.tableService.findAllWithPagination(filter);
   }
 
+  @Get('all')
+  async getAllTables() {
+    return this.tableService.findAll();
+  }
+
   @Post()
   async createTable(@Body() table: Table): Promise<Table> {
     return this.tableService.create(table);

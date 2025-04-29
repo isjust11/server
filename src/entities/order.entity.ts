@@ -27,7 +27,7 @@ export class Order {
   @JoinColumn({ name: 'statusId' })
   orderStatus: Category;
 
-  @Column()
+  @Column({ nullable: true })
   statusId: string;
 
   @OneToMany(() => OrderItem, orderItem => orderItem.order)

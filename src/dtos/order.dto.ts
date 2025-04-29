@@ -14,8 +14,8 @@ export class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
-  @IsNumber()
-  tableId: number;
+  @IsString()
+  tableId: string;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -25,6 +25,16 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @IsNumber()
+  userId: number;
+
+  @IsString()
+  statusId: string; // Assuming statusId is a string, adjust if it's a number or enum
+
+  @IsNumber()
+  totalAmount: number;
+
 }
 
 export class UpdateOrderStatusDto {

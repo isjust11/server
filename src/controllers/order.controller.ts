@@ -1,14 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from '../dtos/order.dto';
+import { EncryptionUtil } from 'src/utils/encryption.util';
+import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  @Post(':id')
+  create(@Param('id') id: string, @Body() createOrderDto: CreateOrderDto) {
+    // Decrypt the tableId before using it
+    const decryptedTableId = Base64EncryptionUtil.decrypt(id);
+    return this.orderService.create(Number(decryptedTableId),createOrderDto);
   }
 
   @Get()
@@ -18,7 +22,8 @@ export class OrderController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+    const decryptedTableId = Base64EncryptionUtil.decrypt(id);
+    return this.orderService.findOne(+decryptedTableId);
   }
 
   @Patch(':id/status')

@@ -25,10 +25,13 @@ export class OrderService {
     private notificationsGateway: NotificationsGateway,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(tableId: number,createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create({
-      tableId: createOrderDto.tableId,
+      tableId: tableId,
       note: createOrderDto.note,
+      userId: createOrderDto.userId,
+      statusId: createOrderDto.statusId,
+      totalAmount: createOrderDto.totalAmount,
     });
 
     const savedOrder = await this.orderRepository.save(order);
@@ -48,6 +51,7 @@ export class OrderService {
         foodItem,
         quantity: item.quantity,
         price: foodItem.price,
+        totalPrice: foodItem.price * item.quantity,
         note: item.note,
       });
 
@@ -76,7 +80,7 @@ export class OrderService {
 
   findAll(): Promise<Order[]> {
     return this.orderRepository.find({
-      relations: ['orderItems', 'orderItems.foodItem'],
+      relations: ['orderItems', 'orderItems.foodItem','table', 'account', 'orderStatus'],
     });
   }
 

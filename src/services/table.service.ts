@@ -45,7 +45,14 @@ export class TableService {
   }
 
   findAll(): Promise<Table[]> {
-    return this.tableRepository.find();
+    return this.tableRepository.find(
+      {
+        relations: ['tableStatus', 'tableType', 'tableArea'],
+        order: {
+          id: 'DESC'
+        }
+      }
+    );
   }
 
   async create(table: Table): Promise<Table> {
