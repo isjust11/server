@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from '../dtos/order.dto';
 import { EncryptionUtil } from 'src/utils/encryption.util';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
+import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
 
 @Controller('orders')
+@UseInterceptors(EncryptionInterceptor)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
