@@ -91,7 +91,7 @@ export class TableService {
         priority: NotificationPriority.MEDIUM,
         additionalData: updatedTable
       };
-      this.notificationsGateway.notifyAll('tableUpdated', notificationData);
+      this.notificationsGateway.notifyAll('SOCKET_ON', notificationData);
     }
     return updatedTable;
   }
