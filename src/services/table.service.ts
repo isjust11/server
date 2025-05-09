@@ -91,9 +91,18 @@ export class TableService {
         priority: NotificationPriority.MEDIUM,
         additionalData: updatedTable
       };
-      this.notificationsGateway.notifyAll('tableUpdated', notificationData);
+      this.notificationsGateway.notifyAll('SOCKET_ON', notificationData);
     }
     return updatedTable;
+  }
+
+  async updateStatus(id: number, status: string): Promise<Table | null> {
+    await this.tableRepository.update(id, { tableStatusId: status });
+    const updatedTable = await this.tableRepository.findOne({ where: { id } });
+    if (updatedTable) {
+      return updatedTable;
+    }
+    return null;
   }
 
   async remove(id: number): Promise<void> {

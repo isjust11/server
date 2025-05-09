@@ -12,6 +12,7 @@ import { NotificationData } from 'src/interfaces/notification.interface';
 import { NOTIFICATION_ROOMS } from 'src/constants/notification.constants';
 import { NotificationStatus } from 'src/enums/notification.enum';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
+import { TableService } from './table.service';
 
 @Injectable()
 export class OrderService {
@@ -22,6 +23,7 @@ export class OrderService {
     private orderItemRepository: Repository<OrderItem>,
     @InjectRepository(FoodItem)
     private foodItemRepository: Repository<FoodItem>,
+    private tableService: TableService,
     private notificationsGateway: NotificationsGateway,
   ) {}
 
@@ -35,6 +37,9 @@ export class OrderService {
     });
 
     const savedOrder = await this.orderRepository.save(order);
+
+    // cập nhật trạng thái bàn
+    const table = await this.tableService.updateStatus(tableId, 'busy');
     let totalAmount = 0;
 
     for (const item of createOrderDto.orderItems) {
