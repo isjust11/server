@@ -22,6 +22,12 @@ export class Category {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({default: null})
+  code: string;
+
+  @Column({default: true})
+  allowEdit: boolean;
+
   @ManyToOne(() => CategoryType, (cat) => cat.categories)
   type: CategoryType;
 

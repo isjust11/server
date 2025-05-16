@@ -26,7 +26,8 @@ export class NotificationFilter implements ExceptionFilter {
       timestamp: new Date(),
       status: NotificationStatus.FAILED,
       type: NotificationType.SYSTEM,
-      priority: NotificationPriority.LOW
+      priority: NotificationPriority.LOW,
+      tableStatus:''
     });
 
     response.status(status).json({

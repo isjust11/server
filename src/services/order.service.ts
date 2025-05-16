@@ -13,6 +13,9 @@ import { NOTIFICATION_ROOMS } from 'src/constants/notification.constants';
 import { NotificationStatus } from 'src/enums/notification.enum';
 import { NotificationsGateway } from 'src/gateways/notifications.gateway';
 import { TableService } from './table.service';
+import { CategoryService } from './category.service';
+import { tableStatus } from 'src/constants/table.constants';
+import { Category } from 'src/entities/category.entity';
 
 @Injectable()
 export class OrderService {
@@ -24,6 +27,7 @@ export class OrderService {
     @InjectRepository(FoodItem)
     private foodItemRepository: Repository<FoodItem>,
     private tableService: TableService,
+    private categoryService:CategoryService,
     private notificationsGateway: NotificationsGateway,
   ) {}
 
@@ -37,9 +41,21 @@ export class OrderService {
     });
 
     const savedOrder = await this.orderRepository.save(order);
+    // lấy trạng thái sử dụng của bàn
+    const category = await this.categoryService.findByCode(tableStatus.USING)
+    // if(category == null){
+    //   const categoryUsing: Category ={
+    //     name:'Đang sử dụng',
+    //     code:tableStatus.USING,
+    //     description:'',
 
+    //   } 
+    //   this.categoryService.create(categoryUsing);
+    // }
     // cập nhật trạng thái bàn
-    const table = await this.tableService.updateStatus(tableId, 'busy');
+    const table = await this.tableService.updateStatus(tableId, category?.id ?? createOrderDto.statusId);
+    // 
+    console.log('update trạng thái bàn thành công')
     let totalAmount = 0;
 
     for (const item of createOrderDto.orderItems) {
@@ -74,6 +90,7 @@ export class OrderService {
       orderId: savedOrder.id.toString(),
       userId: 'system',
       userName: 'System',
+      tableStatus: table?.tableStatusId ??'',
       status: NotificationStatus.PENDING,
       type: NotificationType.ORDER,
       priority: NotificationPriority.MEDIUM,

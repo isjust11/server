@@ -12,6 +12,7 @@ export interface NotificationData {
   status: NotificationStatus;
   type: NotificationType;
   priority: NotificationPriority;
+  tableStatus?: string;
   additionalData?: any;
   error?: string;
 }
