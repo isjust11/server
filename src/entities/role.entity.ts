@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Permission } from './permission.entity';
+import { Navigator } from './navigator.entity';
 
 @Entity()
 export class Role {
@@ -31,4 +32,18 @@ export class Role {
     },
   })
   permissions: Permission[];
+
+  @ManyToMany(() => Navigator)
+  @JoinTable({
+    name: 'role_navigators',
+    joinColumn: {
+      name: 'roleId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'navigatorId',
+      referencedColumnName: 'id',
+    },
+  })
+  navigators: Navigator[];
 } 

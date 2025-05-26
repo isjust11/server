@@ -7,14 +7,14 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Order, order => order.orderItems)
+  @ManyToOne(() => Order, order => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'orderId' })
   order: Order;
 
   @Column()
   orderId: number;
 
-  @ManyToOne(() => FoodItem)
+  @ManyToOne(() => FoodItem, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'foodItemId' })
   foodItem: FoodItem;
 

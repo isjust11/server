@@ -8,6 +8,7 @@ import * as crypto from 'crypto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshToken } from '../entities/refresh-token.entity';
+import { RoleEnum } from 'src/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -40,21 +41,21 @@ export class AuthService {
     const existingUser = await this.userService.findByUsername(registerDto.username);
     // trường hợp đã tồn tại tài khoản và email trùng nhau
     if (existingUser) {
-      if(existingUser.email === registerDto.email){
-        if(existingUser.isEmailVerified){
+      if (existingUser.email === registerDto.email) {
+        if (existingUser.isEmailVerified) {
           return {
             code: RegisterCode.AccountValidated,
             message: 'Tài khoản đã được xác thực',
             data: existingUser
           };
-        }else{
+        } else {
           return {
             code: RegisterCode.ExistUsernameNotVerified,
             message: 'Tài khoản chưa được xác thực',
             data: existingUser
           };
         }
-      }else{
+      } else {
         // tài khoản đã tồn tại nhưng email khác
         return {
           code: RegisterCode.AccountIsExist,
@@ -62,9 +63,9 @@ export class AuthService {
           data: existingUser
         };
       }
-    }else {
+    } else {
       const existingEmail = await this.userService.findByEmail(registerDto.email);
-      if(existingEmail && existingEmail.isWebsiteUser){
+      if (existingEmail && existingEmail.isWebsiteUser) {
         return {
           code: RegisterCode.ExistEmail,
           message: 'Email đã được đăng ký bởi tài khoản khác',
@@ -100,11 +101,11 @@ export class AuthService {
         user = await this.userService.create(registerDto);
       } else {
         // Cập nhật thông tin nếu user đã tồn tại
-          user.platformId = socialUser.platformId;
-          user.picture = socialUser.picture;
-          user.isGoogleUser = socialUser.isGoogleUser || false;
-          user.isFacebookUser = socialUser.isFacebookUser || false;
-          await this.userService.update(user.id, user);
+        user.platformId = socialUser.platformId;
+        user.picture = socialUser.picture;
+        user.isGoogleUser = socialUser.isGoogleUser || false;
+        user.isFacebookUser = socialUser.isFacebookUser || false;
+        await this.userService.update(user.id, user);
       }
 
       return this.generateToken(user);
@@ -137,7 +138,7 @@ export class AuthService {
         ...registerDto,
         verificationToken,
         isEmailVerified: false,
-        isWebsiteUser: true
+        isWebsiteUser: true,
       });
 
       // Gửi email xác thực
@@ -153,9 +154,9 @@ export class AuthService {
         message: 'Email đã được gửi đến bạn',
         data: user
       };
-    }else{
+    } else {
       // trường hợp tài khoản đã tồn tại
-      if(validateUser.code === RegisterCode.ExistUsernameNotVerified){
+      if (validateUser.code === RegisterCode.ExistUsernameNotVerified) {
         const verificationToken = crypto.randomBytes(32).toString('hex');
         validateUser.data.verificationToken = verificationToken;
         await this.userService.update(validateUser.data.id, validateUser.data);

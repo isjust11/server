@@ -5,6 +5,7 @@ import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dtos/auth.dto';
 import { Role } from '../entities/role.entity';
 import { UpdateUserDto } from '../dtos/user.dto';
+import { RoleEnum } from 'src/enums/role.enum';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,7 @@ export class UserService {
     private userRepository: Repository<User>,
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
@@ -50,31 +51,33 @@ export class UserService {
       updatedAt: new Date(),
     });
 
-    if (createUserDto.roleIds) {
-      const roles = await this.roleRepository.find({
+    // Kiểm tra xem đây có phải là tài khoản đầu tiên không
+    const userCount = await this.count();
+    const isFirstUser = userCount === 0;
+
+    // Tìm role ADMIN nếu là tài khoản đầu tiên
+    let roleIds: number[] = [];
+    if (isFirstUser) {
+      const adminRole = await this.roleRepository.findOne({
         where: {
-          id: In(createUserDto.roleIds),
+          code: RoleEnum.ADMIN,
         },
       });
-      user.roles = roles;
-    }
-    if(user.roles == undefined || user.roles.length === 0){
-      const defaultRole = await this.roleRepository.findOne({
-        where: {
-          code: 'CUSTOMER',
-        },
-      });
-      if (!defaultRole) {
-        const roleCustomer =new Role();
-        roleCustomer.code = 'CUSTOMER';
-        roleCustomer.name = 'Khách hàng';
-        roleCustomer.description = 'Khách hàng';
-         this.roleRepository.create(roleCustomer);
-        await this.roleRepository.save(roleCustomer);
-        user.roles = [roleCustomer];
-      } else {
-        user.roles = [defaultRole];
+      if (adminRole) {
+        roleIds = [adminRole.id];
       }
+      user.roles = [adminRole!];
+      user.isAdmin = isFirstUser;
+    } else {
+      const roleCustomer = await this.roleRepository.findOne({
+        where: {
+          code: RoleEnum.CUSTOMER,
+        },
+      });
+      if (roleCustomer) {
+        roleIds = [roleCustomer.id];
+      }
+      user.roles = [roleCustomer!];
     }
 
     return this.userRepository.save(user);
@@ -182,5 +185,15 @@ export class UserService {
     }
     user.isBlocked = false;
     return this.userRepository.save(user);
+  }
+
+  async count(): Promise<number> {
+    return this.userRepository.count();
+  }
+
+  async findRoleByCode(code: string): Promise<Role | null> {
+    return this.roleRepository.findOne({
+      where: { code }
+    });
   }
 } 

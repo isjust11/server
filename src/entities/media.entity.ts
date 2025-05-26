@@ -27,7 +27,7 @@ export class Media {
   @Column({ default: false })
   isDeleted: boolean;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 

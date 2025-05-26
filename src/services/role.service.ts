@@ -4,6 +4,8 @@ import { In, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
 import { Permission } from '../entities/permission.entity';
+import { Navigator } from '../entities/navigator.entity';
+import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
 
 @Injectable()
 export class RoleService {
@@ -12,6 +14,8 @@ export class RoleService {
     private roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
+    @InjectRepository(Navigator)
+    private navigatorRepository: Repository<Navigator>,
   ) {}
 
   async findAll(): Promise<Role[]> {
@@ -73,5 +77,32 @@ export class RoleService {
     if (result.affected === 0) {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
+  }
+
+  async getNavigatorsByRole(roleId: number) {
+    const role = await this.roleRepository.findOne({
+      where: { id: roleId },
+      relations: ['navigators'],
+    });
+
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${roleId} not found`);
+    }
+
+    return role.navigators;
+  }
+
+  async assignNavigators(roleId: number, assignNavigatorDto: AssignNavigatorDto): Promise<Role> {
+    const role = await this.findById(roleId);
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${roleId} not found`);
+    }
+
+    const navigators = await this.navigatorRepository.find({
+      where: { id: In(assignNavigatorDto.navigatorIds) },
+    });
+
+    role.navigators = navigators;
+    return this.roleRepository.save(role);
   }
 } 

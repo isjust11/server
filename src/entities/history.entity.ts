@@ -38,21 +38,21 @@ export class History {
   @Column({ nullable: true })
   reservationId: number;
 
-  @ManyToOne(() => Reservation, { nullable: true })
+  @ManyToOne(() => Reservation, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'reservationId' })
   reservation: Reservation;
 
   @Column({ nullable: true })
   orderId: number;
 
-  @ManyToOne(() => Order, { nullable: true })
+  @ManyToOne(() => Order, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'orderId' })
   order: Order;
 
   @Column()
   userId: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;
 
