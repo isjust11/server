@@ -15,6 +15,10 @@ export class CreateRoleDto {
   @IsArray()
   @IsOptional()
   permissionIds?: number[];
+
+  @IsArray()
+  @IsOptional()
+  navigatorIds?: string[];
 }
 
 export class UpdateRoleDto {
@@ -29,4 +33,8 @@ export class UpdateRoleDto {
   @IsArray()
   @IsOptional()
   permissionIds?: number[];
+
+  @IsArray()
+  @IsOptional()
+  navigatorIds?: string[];
 } 
