@@ -7,6 +7,7 @@ import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('navigator')
 @UseInterceptors(EncryptionInterceptor)
+@UseInterceptors(EncryptionInterceptor)
 export class NavigatorController {
     constructor(private readonly navigatorService: NavigatorService) {}
 
