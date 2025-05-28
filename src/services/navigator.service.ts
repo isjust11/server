@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Navigator } from '../entities/navigator.entity';
-import { IsNull, Repository } from 'typeorm';
+import { IsNull, Like, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { AssignRoleDto } from 'src/dtos/assign-role.dto';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class NavigatorService {
@@ -17,6 +18,31 @@ export class NavigatorService {
     async create(createNavigatorDto: Partial<Navigator>): Promise<Navigator> {
         const navigator = this.navigatorRepository.create(createNavigatorDto);
         return await this.navigatorRepository.save(navigator);
+    }
+
+    async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Navigator>> {
+        const { page = 1, size = 10, search = '' } = params;
+        const skip = (page - 1) * size;
+
+        const whereConditions = search ? [
+            { label: Like(`%${search}%`) },
+            { link: Like(`%${search}%`) },
+        ] : {};
+
+        const [data, total] = await this.navigatorRepository.findAndCount({
+            where: whereConditions,
+            skip,
+            take: size,
+            order: { id: 'DESC' },
+        });
+
+        return {
+            data,
+            total,          
+            page,
+            size,
+            totalPages: Math.ceil(total / size),
+        };
     }
 
     async findAll(): Promise<Navigator[]> {

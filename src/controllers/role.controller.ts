@@ -6,6 +6,7 @@ import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
 import { Navigator } from '../entities/navigator.entity';
 import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
 import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
+import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 
 @Controller('roles')
 @UseGuards(JwtAuthGuard)
@@ -20,7 +21,13 @@ export class RoleController {
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Role | null> {
-    return this.roleService.findById(parseInt(id));
+    return this.roleService.findById(this.decode(id));
+  }
+
+  
+  @Get('/find/:code')
+  async findByCode(@Param('code') code: string): Promise<Role | null> {
+    return this.roleService.findByCode(code);
   }
 
   @Post()
@@ -33,17 +40,17 @@ export class RoleController {
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<Role> {
-    return this.roleService.update(parseInt(id), updateRoleDto);
+    return this.roleService.update(this.decode(id), updateRoleDto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
-    return this.roleService.remove(parseInt(id));
+    return this.roleService.remove(this.decode(id));
   }
 
   @Get(':id/navigators')
   async getNavigatorsByRole(@Param('id') id: string): Promise<Navigator[]> {
-    return this.roleService.getNavigatorsByRole(parseInt(id));
+    return this.roleService.getNavigatorsByRole(this.decode(id));
   }
 
   @Post(':id/navigators')
@@ -51,6 +58,11 @@ export class RoleController {
     @Param('id') id: string,
     @Body() assignNavigatorDto: AssignNavigatorDto,
   ): Promise<Role> {
-    return this.roleService.assignNavigators(parseInt(id), assignNavigatorDto);
+    return this.roleService.assignNavigators(this.decode(id), assignNavigatorDto);
+  }
+
+  private decode(id:string){
+    const idDecode = Base64EncryptionUtil.decrypt(id);
+    return parseInt(idDecode);
   }
 } 

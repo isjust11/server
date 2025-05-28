@@ -32,6 +32,13 @@ export class RoleService {
     });
   }
 
+   async findByCode(code: string): Promise<Role | null> {
+    return this.roleRepository.findOne({
+      where: { code },
+      relations: ['permissions','navigators'],
+    });
+  }
+
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
     const role = this.roleRepository.create({
       name: createRoleDto.name,
@@ -46,8 +53,9 @@ export class RoleService {
       role.permissions = permissions;
     }
     if (createRoleDto.navigatorIds) {
+      const lstNavigatorDecodes = createRoleDto.navigatorIds.map((nav)=>Base64EncryptionUtil.decrypt(nav)) ;
       const navigators = await this.navigatorRepository.find({
-        where: { id: In(createRoleDto.navigatorIds) },
+        where: { id: In(lstNavigatorDecodes) },
       });
       role.navigators = navigators;
     }
