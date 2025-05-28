@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, Unique } from 'typeorm';
 import { Permission } from './permission.entity';
 import { Navigator } from './navigator.entity';
 
@@ -11,6 +11,7 @@ export class Role {
   name: string;
 
   @Column()
+  @Unique(['code'])
   code: string;
 
   @Column({ nullable: true })

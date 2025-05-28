@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors } from '@nestjs/common';
 import { NavigatorService } from '../services/navigator.service';
 import { Navigator } from '../entities/navigator.entity';
 import { AssignRoleDto } from '../dtos/assign-role.dto';
+import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
 
 @Controller('navigator')
+@UseInterceptors(EncryptionInterceptor)
 export class NavigatorController {
     constructor(private readonly navigatorService: NavigatorService) {}
 
