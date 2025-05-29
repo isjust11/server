@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Navigator } from '../entities/navigator.entity';
-import { IsNull, Like, Repository } from 'typeorm';
+import { Int32, IsNull, Like, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { AssignRoleDto } from 'src/dtos/assign-role.dto';
 import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
+import { EncryptionUtil } from 'src/utils/encryption.util';
+import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
+import { NavigatorDto } from 'src/dtos/navigator.dto';
 
 @Injectable()
 export class NavigatorService {
@@ -13,10 +16,17 @@ export class NavigatorService {
         private navigatorRepository: Repository<Navigator>,
         @InjectRepository(Role)
         private roleRepository: Repository<Role>,
-    ) {}
+    ) { }
 
-    async create(createNavigatorDto: Partial<Navigator>): Promise<Navigator> {
-        const navigator = this.navigatorRepository.create(createNavigatorDto);
+    async create(createNavigatorDto: NavigatorDto): Promise<Navigator> {
+        const decodedId = parseInt(Base64EncryptionUtil.decrypt(createNavigatorDto?.parentId ?? ''));
+        const navigator = this.navigatorRepository.create({
+            icon: createNavigatorDto.icon ?? '',
+            label: createNavigatorDto.label,
+            link: createNavigatorDto.link,
+            parentId: Number.isNaN(decodedId) ? undefined : decodedId,
+            isActive: createNavigatorDto.isActive
+        });
         return await this.navigatorRepository.save(navigator);
     }
 
@@ -38,7 +48,7 @@ export class NavigatorService {
 
         return {
             data,
-            total,          
+            total,
             page,
             size,
             totalPages: Math.ceil(total / size),
@@ -57,15 +67,15 @@ export class NavigatorService {
             where: { id },
             relations: ['children', 'parent'],
         });
-        
+
         if (!navigator) {
             throw new NotFoundException(`Navigator with ID ${id} not found`);
         }
-        
+
         return navigator;
     }
 
-    async update(id: number, updateNavigatorDto: Partial<Navigator>): Promise<Navigator> {
+    async update(id: number, updateNavigatorDto: NavigatorDto): Promise<Navigator> {
         const navigator = await this.findOne(id);
         Object.assign(navigator, updateNavigatorDto);
         return await this.navigatorRepository.save(navigator);

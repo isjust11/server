@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from './role.entity';
+import { IconType } from 'src/enums/icon-type.enum';
 
 @Entity()
 export class Navigator {
@@ -24,7 +25,23 @@ export class Navigator {
   @Column({ nullable: true })
   order?: number;
 
-  @ManyToOne(() => Navigator, navigator => navigator.children)
+  @Column({
+    type: 'enum',
+    enum: IconType,
+    default: IconType.lucid
+  })
+  iconType?: IconType;
+
+  @Column({ default: 20 })
+  iconSize: number;
+
+  @Column()
+  className: string;
+
+  @ManyToOne(() => Navigator, navigator => navigator.children, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  })
   @JoinColumn({ name: 'parentId' })
   parent?: Navigator;
 
@@ -44,4 +61,12 @@ export class Navigator {
     },
   })
   roles: Role[];
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
+
+
 } 
