@@ -27,15 +27,27 @@ export class EncryptionInterceptor implements NestInterceptor {
     if (typeof entity === 'object') {
       const encryptedEntity = { ...entity };
 
+      // Mã hóa ID chính
       if (encryptedEntity.id) {
         encryptedEntity.id = Base64EncryptionUtil.encrypt(encryptedEntity.id);
       }
 
-      // Mã hóa các trường ID khác nếu có
+      // Mã hóa các trường ID
       const idFields = Object.keys(encryptedEntity).filter(key => key.endsWith('Id'));
       idFields.forEach(field => {
         if (encryptedEntity[field]) {
           encryptedEntity[field] = Base64EncryptionUtil.encrypt(encryptedEntity[field].toString());
+        }
+      });
+
+      // Mã hóa các trường quan hệ
+      Object.keys(encryptedEntity).forEach(key => {
+        if (typeof encryptedEntity[key] === 'object' && encryptedEntity[key] !== null) {
+          if (Array.isArray(encryptedEntity[key])) {
+            encryptedEntity[key] = encryptedEntity[key].map(item => this.encryptEntity(item));
+          } else {
+            encryptedEntity[key] = this.encryptEntity(encryptedEntity[key]);
+          }
         }
       });
 
