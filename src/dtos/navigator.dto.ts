@@ -16,6 +16,7 @@ export class NavigatorDto {
   link: string;
 
   @IsString()
+  @Optional()
   parentId?: string;
 
   @IsBoolean()

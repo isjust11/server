@@ -80,6 +80,12 @@ export class NavigatorService {
     async update(id: number, updateNavigatorDto: NavigatorDto): Promise<Navigator> {
         const navigator = await this.findOne(id);
         Object.assign(navigator, updateNavigatorDto);
+        if (!updateNavigatorDto.parentId || updateNavigatorDto.parentId === '') {
+            navigator.parent = undefined;
+        } else {
+            const parentId = parseInt(Base64EncryptionUtil.decrypt(updateNavigatorDto.parentId ?? ''));
+            navigator.parent = await this.navigatorRepository.findOne({ where: { id: parentId } }) ?? undefined;
+        }
         return await this.navigatorRepository.save(navigator);
     }
 
