@@ -4,9 +4,11 @@ import { LoginDto, RegisterDto, ResendEmailDto, ResetPasswordDto } from '../dtos
 import { JwtAuthGuard, Public } from '../guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
+import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseInterceptors(EncryptionInterceptor)
 export class AuthController {
   constructor(private authService: AuthService) {}
 
