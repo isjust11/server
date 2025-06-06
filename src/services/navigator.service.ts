@@ -82,6 +82,7 @@ export class NavigatorService {
         Object.assign(navigator, updateNavigatorDto);
         if (!updateNavigatorDto.parentId || updateNavigatorDto.parentId === '') {
             navigator.parent = undefined;
+            navigator.parentId = undefined;
         } else {
             const parentId = parseInt(Base64EncryptionUtil.decrypt(updateNavigatorDto.parentId ?? ''));
             navigator.parent = await this.navigatorRepository.findOne({ where: { id: parentId } }) ?? undefined;
@@ -107,7 +108,7 @@ export class NavigatorService {
         }
 
         const roles = await this.roleRepository.findByIds(assignRoleDto.roleIds);
-        navigator.roles = roles;
+        // navigator.roles = roles;
 
         return this.navigatorRepository.save(navigator);
     }
@@ -121,23 +122,23 @@ export class NavigatorService {
         if (!navigator) {
             throw new Error('Navigator not found');
         }
-        navigator.roles = navigator.roles.filter(
-            role => !roleIds.includes(role.id)
-        );
+        // navigator.roles = navigator.roles.filter(
+        //     role => !roleIds.includes(role.id)
+        // );
 
         return this.navigatorRepository.save(navigator);
     }
 
-    async getNavigatorRoles(navigatorId: number) {
-        const navigator = await this.navigatorRepository.findOne({
-            where: { id: navigatorId },
-            relations: ['roles'],
-        });
+    // async getNavigatorRoles(navigatorId: number) {
+    //     const navigator = await this.navigatorRepository.findOne({
+    //         where: { id: navigatorId },
+    //         relations: ['roles'],
+    //     });
 
-        if (!navigator) {
-            throw new Error('Navigator not found');
-        }
+    //     if (!navigator) {
+    //         throw new Error('Navigator not found');
+    //     }
 
-        return navigator.roles;
-    }
+    //     return navigator.roles;
+    // }
 }

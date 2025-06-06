@@ -4,6 +4,7 @@ import { FoodItem } from './food-item.entity';
 import { Table } from './table.entity';
 import { Reservation } from './reservation.entity';
 import { Order } from './order.entity';
+import { Navigator } from './navigator.entity';
 
 @Entity()
 export class Category {
@@ -54,6 +55,9 @@ export class Category {
 
   @OneToMany(() => Order, order => order.orderStatus)
   order: Order[];
+
+  @OneToMany(() => Navigator, nav => nav.navigatorType)
+  navigator: Navigator[];
 
   @Column()
   createDate: Date;

@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from './role.entity';
 import { IconType } from 'src/enums/icon-type.enum';
+import { Category } from './category.entity';
 
 @Entity()
 export class Navigator {
@@ -35,7 +36,7 @@ export class Navigator {
   @Column({ default: 20 })
   iconSize: number;
 
-  @Column({default:''})
+  @Column({ default: '' })
   className?: string;
 
   @ManyToOne(() => Navigator, navigator => navigator.children, {
@@ -48,19 +49,28 @@ export class Navigator {
   @OneToMany(() => Navigator, navigator => navigator.parent)
   children?: Navigator[];
 
-  @ManyToMany(() => Role)
-  @JoinTable({
-    name: 'navigator_roles',
-    joinColumn: {
-      name: 'navigatorId',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'roleId',
-      referencedColumnName: 'id',
-    },
+  @ManyToOne(() => Category, category => category.navigator, {
+    onDelete: 'SET NULL',
   })
-  roles: Role[];
+  @JoinColumn({ name: 'navigatorTypeId' })
+  navigatorType: Category;
+
+  @Column({ nullable: true })
+  navigatorTypeId: string;
+
+  // @ManyToMany(() => Role)
+  // @JoinTable({
+  //   name: 'navigator_roles',
+  //   joinColumn: {
+  //     name: 'navigatorId',
+  //     referencedColumnName: 'id',
+  //   },
+  //   inverseJoinColumn: {
+  //     name: 'roleId',
+  //     referencedColumnName: 'id',
+  //   },
+  // })
+  // roles: Role[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
