@@ -58,10 +58,10 @@ export class NavigatorController {
         return this.navigatorService.removeRoles(this.decode(id), roleIds);
     }
 
-    @Get(':id/roles')
-    getNavigatorRoles(@Param('id') id: string) {
-        return this.navigatorService.getNavigatorRoles(this.decode(id));
-    }
+    // @Get(':id/roles')
+    // getNavigatorRoles(@Param('id') id: string) {
+    //     return this.navigatorService.getNavigatorRoles(this.decode(id));
+    // }
 
     private decode(id:string){
         const idDecode = Base64EncryptionUtil.decrypt(id);
