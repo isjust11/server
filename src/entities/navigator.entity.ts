@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from './role.entity';
 import { IconType } from 'src/enums/icon-type.enum';
+import { Category } from './category.entity';
 
 @Entity()
 export class Navigator {
@@ -47,6 +48,11 @@ export class Navigator {
 
   @OneToMany(() => Navigator, navigator => navigator.parent)
   children?: Navigator[];
+
+    @ManyToOne(() => Category, category => category.navigator, {
+    onDelete: 'SET NULL',})
+    @JoinColumn({ name: 'statusId' })
+    navigatorType: Category;
 
   // @ManyToMany(() => Role)
   // @JoinTable({
