@@ -54,10 +54,20 @@ export class Category {
   reservation: Reservation[];
 
   @OneToMany(() => Order, order => order.orderStatus)
-  order: Order[];
+  orders: Order[];
 
   @OneToMany(() => Navigator, nav => nav.navigatorType)
   navigator: Navigator[];
+
+  @Column({
+    default:0
+  })
+  order: number;
+
+  @Column({
+    default:false
+  })
+  isDefault: boolean;
 
   @Column()
   createDate: Date;

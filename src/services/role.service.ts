@@ -28,7 +28,7 @@ export class RoleService {
   async findById(id: number): Promise<Role | null> {
     return this.roleRepository.findOne({
       where: { id },
-      relations: ['permissions','navigators'],
+      relations: ['permissions','navigators','navigators.navigatorType'],
     });
   }
 
@@ -104,7 +104,7 @@ export class RoleService {
   async getNavigatorsByRole(roleId: number) {
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
-      relations: ['navigators'],
+      relations: ['navigators','navigators.navigatorType'],
     });
 
     if (!role) {
