@@ -29,7 +29,7 @@ export class Navigator {
   @Column({
     type: 'enum',
     enum: IconType,
-    default: IconType.lucid
+    default: null
   })
   iconType?: IconType;
 
