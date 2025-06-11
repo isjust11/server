@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsArray } from 'class-validator';
 
-export class CreateRoleDto {
+export class RoleDto {
   @IsString()
   name: string;
 
@@ -18,23 +18,5 @@ export class CreateRoleDto {
 
   @IsArray()
   @IsOptional()
-  navigatorIds?: string[];
+  features?: string[];
 }
-
-export class UpdateRoleDto {
-  @IsString()
-  @IsOptional()
-  name?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @IsArray()
-  @IsOptional()
-  permissionIds?: number[];
-
-  @IsArray()
-  @IsOptional()
-  navigatorIds?: string[];
-} 

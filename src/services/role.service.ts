@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
-import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
+import { RoleDto } from '../dtos/role.dto';
 import { Permission } from '../entities/permission.entity';
 import { Navigator } from '../entities/navigator.entity';
 import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
@@ -21,25 +21,25 @@ export class RoleService {
 
   async findAll(): Promise<Role[]> {
     return this.roleRepository.find({
-      relations: ['permissions','navigators'],
+      relations: ['permissions','features'],
     });
   }
 
   async findById(id: number): Promise<Role | null> {
     return this.roleRepository.findOne({
       where: { id },
-      relations: ['permissions','navigators','navigators.navigatorType'],
+      relations: ['permissions','features','features.navigatorType'],
     });
   }
 
    async findByCode(code: string): Promise<Role | null> {
     return this.roleRepository.findOne({
       where: { code },
-      relations: ['permissions','navigators'],
+      relations: ['permissions','features'],
     });
   }
 
-  async create(createRoleDto: CreateRoleDto): Promise<Role> {
+  async create(createRoleDto: RoleDto): Promise<Role> {
     const role = this.roleRepository.create({
       name: createRoleDto.name,
       code: createRoleDto.code,
@@ -52,18 +52,18 @@ export class RoleService {
       });
       role.permissions = permissions;
     }
-    if (createRoleDto.navigatorIds) {
-      const lstNavigatorDecodes = createRoleDto.navigatorIds.map((nav)=>Base64EncryptionUtil.decrypt(nav)) ;
+    if (createRoleDto.features) {
+      const lstNavigatorDecodes = createRoleDto.features.map((nav)=>Base64EncryptionUtil.decrypt(nav)) ;
       const navigators = await this.navigatorRepository.find({
         where: { id: In(lstNavigatorDecodes) },
       });
-      role.navigators = navigators;
+      role.features = navigators;
     }
 
     return this.roleRepository.save(role);
   }
 
-  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(id: number, updateRoleDto: RoleDto): Promise<Role> {
     const role = await this.findById(id);
     if (!role) {
       throw new NotFoundException(`Role with ID ${id} not found`);
@@ -84,12 +84,12 @@ export class RoleService {
       role.permissions = permissions;
     }
 
-    if (updateRoleDto.navigatorIds) {
-      const navigatorDecodes = updateRoleDto.navigatorIds.map((item)=> Base64EncryptionUtil.decrypt(item));
+    if (updateRoleDto.features) {
+      const navigatorDecodes = updateRoleDto.features.map((item)=> Base64EncryptionUtil.decrypt(item));
       const navigators = await this.navigatorRepository.find({
         where: { id: In(navigatorDecodes) },
       });
-      role.navigators = navigators;
+      role.features = navigators;
     }
     return this.roleRepository.save(role);
   }
@@ -104,14 +104,14 @@ export class RoleService {
   async getNavigatorsByRole(roleId: number) {
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
-      relations: ['navigators','navigators.navigatorType'],
+      relations: ['features','features.navigatorType'],
     });
 
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }
 
-    return role.navigators;
+    return role.features;
   }
 
   async assignNavigators(roleId: number, assignNavigatorDto: AssignNavigatorDto): Promise<Role> {
@@ -124,7 +124,7 @@ export class RoleService {
       where: { id: In(assignNavigatorDto.navigatorIds) },
     });
 
-    role.navigators = navigators;
+    role.features = navigators;
     return this.roleRepository.save(role);
   }
 } 

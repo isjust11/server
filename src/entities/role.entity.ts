@@ -46,5 +46,5 @@ export class Role {
       referencedColumnName: 'id',
     },
   })
-  navigators: Navigator[];
+  features: Navigator[];
 } 

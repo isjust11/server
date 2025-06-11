@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UseIntercep
 import { RoleService } from '../services/role.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Role } from '../entities/role.entity';
-import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
+import { RoleDto } from '../dtos/role.dto';
 import { Navigator } from '../entities/navigator.entity';
 import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
 import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
@@ -31,14 +31,14 @@ export class RoleController {
   }
 
   @Post()
-  async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
+  async create(@Body() createRoleDto: RoleDto): Promise<Role> {
     return this.roleService.create(createRoleDto);
   }
 
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateRoleDto: UpdateRoleDto,
+    @Body() updateRoleDto: RoleDto,
   ): Promise<Role> {
     return this.roleService.update(this.decode(id), updateRoleDto);
   }
