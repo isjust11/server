@@ -56,12 +56,6 @@ export class User {
   @Column({ nullable: true })
   lastLogin: Date;
 
-  @Column({ nullable: true })
-  createdAt: Date;
-
-  @Column({ nullable: true })
-  updatedAt: Date;
-
   @ManyToMany(() => Role)
   @JoinTable({
     name: 'user_roles',
@@ -75,6 +69,12 @@ export class User {
     },
   })
   roles: Role[];
+
+   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
   @OneToMany(() => Reservation, reservation => reservation.account)
   reservations: Reservation[];
@@ -91,4 +91,6 @@ export class User {
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
   }
+
+
 } 

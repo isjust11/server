@@ -28,11 +28,10 @@ export class PermissionGuard implements CanActivate {
     }
 
     const role = await this.roleService.findById(user.roles[0].id);
-    if (!role) {
+    if (!role || role.isActive === false) {
       return false;
     }
 
-    const userPermissions = role.permissions.filter(permission => permission.isActive === true).map(permission => permission.name);
-    return requiredPermissions.some(permission => userPermissions.includes(permission));
+    return requiredPermissions.some(permission => role.code === 'ADMIN' || role.code.includes(permission));
   }
 } 

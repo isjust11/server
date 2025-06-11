@@ -14,9 +14,9 @@ export class Guest {
   @Column({ nullable: true })
   email?: string;
 
-  @CreateDateColumn()
+ @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 } 

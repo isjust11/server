@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Navigator } from '../entities/navigator.entity';
-import { Int32, IsNull, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { AssignRoleDto } from 'src/dtos/assign-role.dto';
 import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
-import { EncryptionUtil } from 'src/utils/encryption.util';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 import { NavigatorDto } from 'src/dtos/navigator.dto';
-import { create } from 'domain';
 
 @Injectable()
 export class NavigatorService {
@@ -45,6 +43,7 @@ export class NavigatorService {
             where: whereConditions,
             skip,
             take: size,
+            relations: ['navigatorType',],
             order: { id: 'DESC' },
         });
 

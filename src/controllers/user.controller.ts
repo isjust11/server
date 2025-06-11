@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
@@ -6,13 +6,25 @@ import { RegisterDto } from '../dtos/auth.dto';
 import { UpdateUserDto } from '../dtos/user.dto';
 import { PermissionGuard } from '../guards/permission.guard';
 import { RequirePermissions } from 'src/decorators/require-permissions.decorator';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('users')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
+  @Get()
+  @RequirePermissions('ADMIN')
+  async getNavigator(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.userService.findAllWithPagination(filter);
+  }
+  
   @Get()
   @RequirePermissions('ADMIN')
   async findAll(): Promise<User[]> {

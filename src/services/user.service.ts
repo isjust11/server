@@ -1,11 +1,12 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { RegisterDto } from '../dtos/auth.dto';
 import { Role } from '../entities/role.entity';
 import { UpdateUserDto } from '../dtos/user.dto';
 import { RoleEnum } from 'src/enums/role.enum';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,32 @@ export class UserService {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
   ) { }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<User>> {
+          const { page = 1, size = 10, search = '' } = params;
+          const skip = (page - 1) * size;
+  
+          const whereConditions = search ? [
+              { username: Like(`%${search}%`) },
+              { fullName: Like(`%${search}%`) },
+          ] : {};
+  
+          const [data, total] = await this.userRepository.findAndCount({
+              where: whereConditions,
+              skip,
+              take: size,
+              relations: ['roles',],
+              order: { id: 'DESC' },
+          });
+  
+          return {
+              data,
+              total,
+              page,
+              size,
+              totalPages: Math.ceil(total / size),
+          };
+      }
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({

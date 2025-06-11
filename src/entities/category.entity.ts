@@ -20,6 +20,19 @@ export class Category {
   @Column({default:''})
   icon: string;
 
+  @Column({
+    type: 'enum',
+    enum: ['lucide', 'emoji'], // Adjust this enum based on your actual icon types
+    default: 'lucide', // Default value, adjust as necessary
+  })
+  iconType: string; // Assuming this is a string, adjust as necessary
+  
+  @Column({ nullable: true })
+  iconSize: number;
+
+  @Column({ nullable: true })
+  className: string;
+
   @Column({ default: true })
   isActive: boolean;
 
@@ -75,9 +88,9 @@ export class Category {
   @Column()
   createBy: string;
 
-  @CreateDateColumn()
+ @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 }

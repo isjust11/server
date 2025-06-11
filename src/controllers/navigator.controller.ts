@@ -11,8 +11,6 @@ import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 @UseInterceptors(EncryptionInterceptor)
 export class NavigatorController {
     constructor(private readonly navigatorService: NavigatorService) {}
-
-
     @Get()
     async getNavigator(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string){
       const filter: PaginationParams = {
