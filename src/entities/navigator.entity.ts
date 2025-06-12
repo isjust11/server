@@ -58,19 +58,6 @@ export class Navigator {
   @Column({ nullable: true })
   navigatorTypeId: string;
 
-  // @ManyToMany(() => Role)
-  // @JoinTable({
-  //   name: 'navigator_roles',
-  //   joinColumn: {
-  //     name: 'navigatorId',
-  //     referencedColumnName: 'id',
-  //   },
-  //   inverseJoinColumn: {
-  //     name: 'roleId',
-  //     referencedColumnName: 'id',
-  //   },
-  // })
-  // roles: Role[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

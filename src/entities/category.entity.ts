@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
 import { CategoryType } from './category-type.entity';
 import { FoodItem } from './food-item.entity';
 import { Table } from './table.entity';
@@ -43,7 +43,11 @@ export class Category {
   allowEdit: boolean;
 
   @ManyToOne(() => CategoryType, (cat) => cat.categories)
+  @JoinColumn({ name: 'categoryTypeId' })
   type: CategoryType;
+
+  @Column()
+  categoryTypeId: string;
 
   @OneToMany(() => FoodItem, foodItem => foodItem.foodCategory)
   foodItems: FoodItem[];
