@@ -8,13 +8,13 @@ export class SeedsCommonData1710669600002 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Insert roles
         await queryRunner.query(`
-            INSERT INTO role (id, name, code, description, isActive) VALUES
-            ('${uuidv4()}', 'Quản trị viên', '${RoleEnum.ADMIN}', 'Quản trị viên hệ thống', true),
-            ('${uuidv4()}', 'Quản lý', '${RoleEnum.MANAGER}', 'Quản lý nhà hàng', true),
-            ('${uuidv4()}', 'Nhân viên', '${RoleEnum.STAFF}', 'Nhân viên phục vụ', true),
-            ('${uuidv4()}', 'Đầu bếp', '${RoleEnum.CHEF}', 'Đầu bếp', true),
-            ('${uuidv4()}', 'Khách hàng', '${RoleEnum.CUSTOMER}', 'Khách hàng', true),
-            ('${uuidv4()}', 'Khách', '${RoleEnum.GUEST}', 'Khách không đăng nhập', true)
+            INSERT INTO role ( name, code, description, isActive) VALUES
+            ('Quản trị viên', '${RoleEnum.ADMIN}', 'Quản trị viên hệ thống', true),
+            ('Quản lý', '${RoleEnum.MANAGER}', 'Quản lý nhà hàng', true),
+            ('Nhân viên', '${RoleEnum.STAFF}', 'Nhân viên phục vụ', true),
+            ('Đầu bếp', '${RoleEnum.CHEF}', 'Đầu bếp', true),
+            ('Khách hàng', '${RoleEnum.CUSTOMER}', 'Khách hàng', true),
+            ('Khách', '${RoleEnum.GUEST}', 'Khách không đăng nhập', true)
         `);
 
         // Insert category types
@@ -43,23 +43,73 @@ export class SeedsCommonData1710669600002 implements MigrationInterface {
             ('${uuidv4()}', 'Khác', '${CategoryCodeEnum.FEATURE_OTHERS}', 'Các chức năng khác', '${featureTypeId}', true)
         `);
 
-        // Tạo dữ liệu cho chức năng quản trị
-        const adminFeatureId = uuidv4();
-        const adminRoleFeatureId = uuidv4();
-        const adminFeatureChildId = uuidv4();
+        // Lấy category ID cho Menu
+        const menuCategoryResult = await queryRunner.query(`
+            SELECT id FROM category WHERE code = '${CategoryCodeEnum.FEATURE_MENU}'
+        `);
+        const menuCategoryId = menuCategoryResult[0].id;
+
+         // Lấy category ID cho Menu
+        const otherCategoryResult = await queryRunner.query(`
+            SELECT id FROM category WHERE code = '${CategoryCodeEnum.FEATURE_OTHERS}'
+        `);
+        const otherCategoryId = otherCategoryResult[0].id;
 
         // Insert chức năng quản trị
         await queryRunner.query(`
-            INSERT INTO navigator (id, name, code, path, icon, parentId, order, isActive) VALUES
-            ('${adminFeatureId}', 'Quản trị', 'ADMIN', '/admin', 'settings', null, 1, true)
+            INSERT INTO navigator (label, link, icon, iconType, parentId, isActive, iconSize,navigatorTypeId, createdAt, updatedAt) VALUES
+            ('Quản trị', '/admin', 'Plug2', 'lucide', null, true, 20,'${menuCategoryId}' , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `);
+
+        const navigatorResult = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/admin'
+        `);
+        const navigatorAdminId = navigatorResult[0].id;
 
         // Insert các chức năng con của quản trị
         await queryRunner.query(`
-            INSERT INTO navigator (id, name, code, path, icon, parentId, order, isActive) VALUES
-            ('${adminFeatureChildId}', 'Chức năng', 'ADMIN_FEATURE', '/manager/admin/features', 'list', '${adminFeatureId}', 1, true),
-            ('${adminRoleFeatureId}', 'Vai trò', 'ADMIN_ROLE', '/manager/admin/roles', 'users', '${adminFeatureId}', 2, true)
+            INSERT INTO navigator (label, link,  parentId, isActive) VALUES
+            ('Chức năng', '/manager/admin/features', '${navigatorAdminId}', true),
+            ( 'Vai trò', '/manager/admin/roles', '${navigatorAdminId}', true)
         `);
+
+         // Insert chức năng khác
+        await queryRunner.query(`
+            INSERT INTO navigator (label, link, icon, iconType, parentId, isActive, iconSize,navigatorTypeId, createdAt, updatedAt) VALUES
+            ('Danh mục', '/manager/cat', 'Dice4', 'lucide', null, true, 20,'${otherCategoryId}' , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `);
+
+        const navigatorCatResult = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/manager/cat'
+        `);
+        const navigatorCatId = navigatorCatResult[0].id;
+
+        // Insert các chức năng con của quản trị
+        await queryRunner.query(`
+            INSERT INTO navigator (label, link,  parentId, isActive) VALUES
+            ('Danh mục', '/manager/categories', '${navigatorCatId}', true),
+            ( 'Loại danh mục', '/manager/category-types', '${navigatorCatId}', true)
+        `);
+
+         const categoryResult = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/manager/categories'
+        `);
+        const categoryId = categoryResult[0].id;
+
+        const categoryType = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/manager/category-types'
+        `);
+        const categoryTypeId = categoryType[0].id;
+
+        const featureResult = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/manager/admin/features'
+        `);
+        const featureId = featureResult[0].id;
+
+        const roleResult = await queryRunner.query(`
+            SELECT id FROM navigator WHERE link = '/manager/admin/roles'
+        `);
+        const roleId = roleResult[0].id;
 
         // Lấy role admin
         const adminRoleResult = await queryRunner.query(`
@@ -69,18 +119,26 @@ export class SeedsCommonData1710669600002 implements MigrationInterface {
 
         // Gán quyền cho role admin
         await queryRunner.query(`
-            INSERT INTO role_navigator (roleId, navigatorId) VALUES
-            ('${adminRoleId}', '${adminFeatureId}'),
-            ('${adminRoleId}', '${adminFeatureChildId}'),
-            ('${adminRoleId}', '${adminRoleFeatureId}')
+            INSERT INTO role_navigators (roleId, navigatorId) VALUES
+            ('${adminRoleId}', '${navigatorAdminId}'),
+            ('${adminRoleId}', '${roleId}'),
+            ('${adminRoleId}', '${featureId}'),
+            ('${adminRoleId}', '${navigatorCatId}'),
+            ('${adminRoleId}', '${categoryId}'),
+            ('${adminRoleId}', '${categoryTypeId}')
+
         `);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query('DELETE FROM role_navigator');
+        await queryRunner.query('DELETE FROM role_navigators');
         await queryRunner.query('DELETE FROM navigator');
         await queryRunner.query('DELETE FROM category');
         await queryRunner.query('DELETE FROM category_type');
         await queryRunner.query('DELETE FROM role');
     }
 } 
+// sql query to create user and flush privileges
+// CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+// GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'host' IDENTIFIED BY 'password';
+// FLUSH PRIVILEGES;

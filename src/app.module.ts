@@ -67,7 +67,7 @@ import { History } from './entities/history.entity';
       host: process.env.DB_HOST ?? 'localhost',
       port: parseInt(process.env.DB_PORT ?? '3306'),
       username: process.env.DB_USERNAME ?? 'root',
-      password: process.env.DB_PASSWORD ?? '',
+      password: process.env.DB_PASSWORD ?? 'Hg!@1997',
       database: process.env.DB_DATABASE ?? 'easy_order',
       entities: [
         Table,

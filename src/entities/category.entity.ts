@@ -85,11 +85,8 @@ export class Category {
     default:false
   })
   isDefault: boolean;
-
-  @Column()
-  createDate: Date;
   
-  @Column()
+  @Column({ nullable: true })
   createBy: string;
 
  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -8,7 +8,7 @@ export class Navigator {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({default: null})
   icon: string;
 
   @Column()

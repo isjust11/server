@@ -18,7 +18,7 @@ export class CategoryController {
 
   @Post()
   async create(@Body() category: Category, @Request() req): Promise<Category | null> {
-    category.createDate = new Date();
+    category.createdAt = new Date();
     category.createBy = req?.user?.id; // Assuming req.user.id contains the ID of the user creating the category
     return this.categoryService.create(category);
   }
