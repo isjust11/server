@@ -19,15 +19,19 @@ export class FeatureService {
 
     async create(createFeatureDto: FeatureDto): Promise<Feature> {
         const decodedId = parseInt(Base64EncryptionUtil.decrypt(createFeatureDto?.parentId ?? ''));
-        const navigator = this.featureRepository.create({
+        const feature = this.featureRepository.create({
             icon: createFeatureDto.icon ?? '',
             label: createFeatureDto.label,
             link: createFeatureDto.link,
             parentId: Number.isNaN(decodedId) ? undefined : decodedId,
             isActive: createFeatureDto.isActive,
             sortOrder: createFeatureDto.sortOrder,
+            featureTypeId:createFeatureDto.featureTypeId,
+            iconType: createFeatureDto.iconType,
+            iconSize: createFeatureDto.iconSize??20,
+            className: createFeatureDto.className
         });
-        return await this.featureRepository.save(navigator);
+        return await this.featureRepository.save(feature);
     }
 
     async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Feature>> {
@@ -64,29 +68,29 @@ export class FeatureService {
     }
 
     async findOne(id: number): Promise<Feature> {
-        const navigator = await this.featureRepository.findOne({
+        const feature = await this.featureRepository.findOne({
             where: { id },
             relations: ['children', 'parent'],
         });
 
-        if (!navigator) {
+        if (!feature) {
             throw new NotFoundException(`Feature with ID ${id} not found`);
         }
 
-        return navigator;
+        return feature;
     }
 
     async update(id: number, updateFeatureDto: FeatureDto): Promise<Feature> {
-        const navigator = await this.findOne(id);
-        Object.assign(navigator, updateFeatureDto);
+        const feature = await this.findOne(id);
+        Object.assign(feature, updateFeatureDto);
         if (!updateFeatureDto.parentId || updateFeatureDto.parentId === '') {
-            navigator.parent = undefined;
-            navigator.parentId = undefined;
+            feature.parent = undefined;
+            feature.parentId = undefined;
         } else {
             const parentId = parseInt(Base64EncryptionUtil.decrypt(updateFeatureDto.parentId ?? ''));
-            navigator.parent = await this.featureRepository.findOne({ where: { id: parentId } }) ?? undefined;
+            feature.parent = await this.featureRepository.findOne({ where: { id: parentId } }) ?? undefined;
         }
-        return await this.featureRepository.save(navigator);
+        return await this.featureRepository.save(feature);
     }
 
     async remove(id: number): Promise<void> {
@@ -96,48 +100,48 @@ export class FeatureService {
         }
     }
 
-    async assignRoles(navigatorId: number, assignRoleDto: AssignRoleDto) {
-        const navigator = await this.featureRepository.findOne({
-            where: { id: navigatorId },
+    async assignRoles(featureId: number, assignRoleDto: AssignRoleDto) {
+        const feature = await this.featureRepository.findOne({
+            where: { id: featureId },
             relations: ['roles'],
         });
 
-        if (!navigator) {
+        if (!feature) {
             throw new Error('Feature not found');
         }
 
         const roles = await this.roleRepository.findByIds(assignRoleDto.roleIds);
-        // navigator.roles = roles;
+        // feature.roles = roles;
 
-        return this.featureRepository.save(navigator);
+        return this.featureRepository.save(feature);
     }
 
-    async removeRoles(navigatorId: number, roleIds: number[]) {
-        const navigator = await this.featureRepository.findOne({
-            where: { id: navigatorId },
+    async removeRoles(featureId: number, roleIds: number[]) {
+        const feature = await this.featureRepository.findOne({
+            where: { id: featureId },
             relations: ['roles'],
         });
 
-        if (!navigator) {
+        if (!feature) {
             throw new Error('Feature not found');
         }
-        // navigator.roles = navigator.roles.filter(
+        // feature.roles = feature.roles.filter(
         //     role => !roleIds.includes(role.id)
         // );
 
-        return this.featureRepository.save(navigator);
+        return this.featureRepository.save(feature);
     }
 
-    // async getFeatureRoles(navigatorId: number) {
-    //     const navigator = await this.featureRepository.findOne({
-    //         where: { id: navigatorId },
+    // async getFeatureRoles(featureId: number) {
+    //     const feature = await this.featureRepository.findOne({
+    //         where: { id: featureId },
     //         relations: ['roles'],
     //     });
 
-    //     if (!navigator) {
+    //     if (!feature) {
     //         throw new Error('Feature not found');
     //     }
 
-    //     return navigator.roles;
+    //     return feature.roles;
     // }
 }

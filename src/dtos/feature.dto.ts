@@ -30,7 +30,13 @@ export class FeatureDto {
   @Optional()
   iconType: IconType;
 
+  @IsString()
+  @Optional()
+  featureTypeId: string;
+
   @Optional()
   @IsNumber()
   iconSize: number;
+    
+  className: string;
 }
