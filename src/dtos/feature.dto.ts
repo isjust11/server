@@ -2,7 +2,7 @@ import { IsString, IsNumber, IsEnum, IsBoolean } from 'class-validator';
 import { Optional } from '@nestjs/common';
 import { IconType } from 'src/enums/icon-type.enum';
 
-export class NavigatorDto {
+export class FeatureDto {
   @IsString()
   id: string;
 
@@ -24,7 +24,7 @@ export class NavigatorDto {
 
   @IsNumber()
   @Optional()
-  order?:number;
+  sortOrder?:number;
 
   @IsEnum(IconType)
   @Optional()

@@ -1,3 +1,3 @@
-export class AssignNavigatorDto {
+export class AssignFeatureDto {
   navigatorIds: number[];
 } 

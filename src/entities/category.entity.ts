@@ -4,7 +4,8 @@ import { FoodItem } from './food-item.entity';
 import { Table } from './table.entity';
 import { Reservation } from './reservation.entity';
 import { Order } from './order.entity';
-import { Navigator } from './navigator.entity';
+import { Feature } from './feature.entity';
+import { features } from 'process';
 
 @Entity()
 export class Category {
@@ -73,13 +74,13 @@ export class Category {
   @OneToMany(() => Order, order => order.orderStatus)
   orders: Order[];
 
-  @OneToMany(() => Navigator, nav => nav.navigatorType)
-  navigator: Navigator[];
+  @OneToMany(() => Feature, features => features.featureType)
+  feature: Feature[];
 
   @Column({
     default:0
   })
-  order: number;
+  sortOrder: number;
 
   @Column({
     default:false

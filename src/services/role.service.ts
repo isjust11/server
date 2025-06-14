@@ -4,8 +4,8 @@ import { In, Repository } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { RoleDto } from '../dtos/role.dto';
 import { Permission } from '../entities/permission.entity';
-import { Navigator } from '../entities/navigator.entity';
-import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
+import { Feature } from '../entities/feature.entity';
+import { AssignFeatureDto } from '../dtos/assign-navigator.dto';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 
 @Injectable()
@@ -15,8 +15,8 @@ export class RoleService {
     private roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private permissionRepository: Repository<Permission>,
-    @InjectRepository(Navigator)
-    private navigatorRepository: Repository<Navigator>,
+    @InjectRepository(Feature)
+    private featureRepository: Repository<Feature>,
   ) {}
 
   async findAll(): Promise<Role[]> {
@@ -28,7 +28,7 @@ export class RoleService {
   async findById(id: number): Promise<Role | null> {
     return this.roleRepository.findOne({
       where: { id },
-      relations: ['permissions','features','features.navigatorType'],
+      relations: ['permissions','features','features.featureType'],
     });
   }
 
@@ -53,9 +53,9 @@ export class RoleService {
       role.permissions = permissions;
     }
     if (createRoleDto.features) {
-      const lstNavigatorDecodes = createRoleDto.features.map((nav)=>Base64EncryptionUtil.decrypt(nav)) ;
-      const navigators = await this.navigatorRepository.find({
-        where: { id: In(lstNavigatorDecodes) },
+      const lstFeatureDecodes = createRoleDto.features.map((nav)=>Base64EncryptionUtil.decrypt(nav)) ;
+      const navigators = await this.featureRepository.find({
+        where: { id: In(lstFeatureDecodes) },
       });
       role.features = navigators;
     }
@@ -86,7 +86,7 @@ export class RoleService {
 
     if (updateRoleDto.features) {
       const navigatorDecodes = updateRoleDto.features.map((item)=> Base64EncryptionUtil.decrypt(item));
-      const navigators = await this.navigatorRepository.find({
+      const navigators = await this.featureRepository.find({
         where: { id: In(navigatorDecodes) },
       });
       role.features = navigators;
@@ -101,10 +101,10 @@ export class RoleService {
     }
   }
 
-  async getNavigatorsByRole(roleId: number) {
+  async getFeaturesByRole(roleId: number) {
     const role = await this.roleRepository.findOne({
       where: { id: roleId },
-      relations: ['features','features.navigatorType'],
+      relations: ['features','features.featureType'],
     });
 
     if (!role) {
@@ -114,17 +114,17 @@ export class RoleService {
     return role.features;
   }
 
-  async assignNavigators(roleId: number, assignNavigatorDto: AssignNavigatorDto): Promise<Role> {
+  async assignFeatures(roleId: number, assignFeatureDto: AssignFeatureDto): Promise<Role> {
     const role = await this.findById(roleId);
     if (!role) {
       throw new NotFoundException(`Role with ID ${roleId} not found`);
     }
 
-    const navigators = await this.navigatorRepository.find({
-      where: { id: In(assignNavigatorDto.navigatorIds) },
+    const features = await this.featureRepository.find({
+      where: { id: In(assignFeatureDto.navigatorIds) },
     });
 
-    role.features = navigators;
+    role.features = features;
     return this.roleRepository.save(role);
   }
 } 

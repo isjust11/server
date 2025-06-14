@@ -23,7 +23,7 @@ export class Order {
   @Column()
   tableId: number;
 
-  @ManyToOne(() => Category, category => category.order)
+  @ManyToOne(() => Category, category => category.sortOrder)
   @JoinColumn({ name: 'statusId' })
   orderStatus: Category;
 

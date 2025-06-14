@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, Unique } from 'typeorm';
 import { Permission } from './permission.entity';
-import { Navigator } from './navigator.entity';
+import { Feature } from './feature.entity';
 
 @Entity()
 export class Role {
@@ -34,19 +34,19 @@ export class Role {
   })
   permissions: Permission[];
 
-  @ManyToMany(() => Navigator)
+  @ManyToMany(() => Feature)
   @JoinTable({
-    name: 'role_navigators',
+    name: 'role_features',
     joinColumn: {
       name: 'roleId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'navigatorId',
+      name: 'featureId',
       referencedColumnName: 'id',
     },
   })
-  features: Navigator[];
+  features: Feature[];
 
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

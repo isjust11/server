@@ -5,9 +5,9 @@ import { TableController } from './controllers/table.controller';
 import { AppService } from './app.service';
 import { Table } from './entities/table.entity';
 import { TableService } from './services/table.service';
-import { NavigatorController } from './controllers/navigator.controller';
-import { Navigator } from './entities/navigator.entity';
-import { NavigatorService } from './services/navigator.service';
+import { FeatureController } from './controllers/feature.controller';
+import { Feature } from './entities/feature.entity';
+import { FeatureService } from './services/feature.service';
 import { join } from 'path';
 import { NotificationsGateway } from './gateways/notifications.gateway';
 import { User } from './entities/user.entity';
@@ -71,7 +71,7 @@ import { History } from './entities/history.entity';
       database: process.env.DB_DATABASE ?? 'easy_order',
       entities: [
         Table,
-        Navigator,
+        Feature,
         User,
         FoodItem,
         Order,
@@ -92,7 +92,7 @@ import { History } from './entities/history.entity';
     }),
     TypeOrmModule.forFeature([
       Table,
-      Navigator,
+      Feature,
       FoodItem,
       Order,
       OrderItem,
@@ -112,7 +112,7 @@ import { History } from './entities/history.entity';
   ],
   controllers: [
     TableController,
-    NavigatorController,
+    FeatureController,
     FoodItemController,
     OrderController,
     AuthController,
@@ -126,7 +126,7 @@ import { History } from './entities/history.entity';
   providers: [
     AppService,
     TableService,
-    NavigatorService,
+    FeatureService,
     NotificationsGateway,
     FoodItemService,
     OrderService,

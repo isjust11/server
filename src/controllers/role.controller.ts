@@ -3,8 +3,8 @@ import { RoleService } from '../services/role.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Role } from '../entities/role.entity';
 import { RoleDto } from '../dtos/role.dto';
-import { Navigator } from '../entities/navigator.entity';
-import { AssignNavigatorDto } from '../dtos/assign-navigator.dto';
+import { Feature } from '../entities/feature.entity';
+import { AssignFeatureDto } from '../dtos/assign-navigator.dto';
 import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
 
@@ -48,17 +48,17 @@ export class RoleController {
     return this.roleService.remove(this.decode(id));
   }
 
-  @Get(':id/navigators')
-  async getNavigatorsByRole(@Param('id') id: string): Promise<Navigator[]> {
-    return this.roleService.getNavigatorsByRole(this.decode(id));
+  @Get(':id/features')
+  async getFeaturesByRole(@Param('id') id: string): Promise<Feature[]> {
+    return this.roleService.getFeaturesByRole(this.decode(id));
   }
 
-  @Post(':id/navigators')
-  async assignNavigators(
+  @Post(':id/features')
+  async assignFeatures(
     @Param('id') id: string,
-    @Body() assignNavigatorDto: AssignNavigatorDto,
+    @Body() assignFeatureDto: AssignFeatureDto,
   ): Promise<Role> {
-    return this.roleService.assignNavigators(this.decode(id), assignNavigatorDto);
+    return this.roleService.assignFeatures(this.decode(id), assignFeatureDto);
   }
 
   private decode(id:string){
