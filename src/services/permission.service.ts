@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Permission } from '../entities/permission.entity';
 import { CreatePermissionDto, UpdatePermissionDto } from '../dtos/permission.dto';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class PermissionService {
@@ -52,5 +53,32 @@ export class PermissionService {
       where: { code: type }, // Sử dụng type assertion để tránh lỗi kiểu
       order: { name: 'ASC' },
     });
+  }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Permission>> {
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
+
+    const queryBuilder = this.permissionRepository.createQueryBuilder('permission');
+
+    if (search) {
+      queryBuilder.where('permission.name LIKE :search OR permission.code LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .skip(skip)
+      .take(size)
+      .orderBy('permission.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
   }
 } 

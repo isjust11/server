@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, Like } from 'typeorm';
 import { Role } from '../entities/role.entity';
 import { RoleDto } from '../dtos/role.dto';
 import { Permission } from '../entities/permission.entity';
 import { Feature } from '../entities/feature.entity';
 import { AssignFeatureDto } from '../dtos/assign-navigator.dto';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class RoleService {
@@ -126,5 +127,33 @@ export class RoleService {
 
     role.features = features;
     return this.roleRepository.save(role);
+  }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Role>> {
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
+
+    const queryBuilder = this.roleRepository.createQueryBuilder('role')
+      .leftJoinAndSelect('role.permissions', 'permissions');
+
+    if (search) {
+      queryBuilder.where('role.name LIKE :search OR role.code LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .skip(skip)
+      .take(size)
+      .orderBy('role.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
   }
 } 

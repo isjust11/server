@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Category } from '../entities/category.entity';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class CategoryService {
@@ -45,5 +46,33 @@ export class CategoryService {
 
   async remove(id: string): Promise<void> {
     await this.categoryRepository.delete(id);
+  }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Category>> {
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
+
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.type', 'type');
+
+    if (search) {
+      queryBuilder.where('category.name LIKE :search OR category.code LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .skip(skip)
+      .take(size)
+      .orderBy('category.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
   }
 } 

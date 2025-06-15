@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Order } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
 import { FoodItem } from '../entities/food-item.entity';
@@ -16,6 +16,7 @@ import { TableService } from './table.service';
 import { CategoryService } from './category.service';
 import { tableStatus } from 'src/constants/table.constants';
 import { Category } from 'src/entities/category.entity';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class OrderService {
@@ -125,5 +126,36 @@ export class OrderService {
 
   async remove(id: number): Promise<void> {
     await this.orderRepository.delete(id);
+  }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Order>> {
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
+
+    const queryBuilder = this.orderRepository.createQueryBuilder('order')
+      .leftJoinAndSelect('order.orderItems', 'orderItems')
+      .leftJoinAndSelect('orderItems.foodItem', 'foodItem')
+      .leftJoinAndSelect('order.table', 'table')
+      .leftJoinAndSelect('order.orderStatus', 'orderStatus');
+
+    if (search) {
+      queryBuilder.where('order.code LIKE :search OR table.name LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .skip(skip)
+      .take(size)
+      .orderBy('order.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
   }
 } 

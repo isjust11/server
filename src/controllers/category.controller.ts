@@ -1,10 +1,21 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Request, Query } from '@nestjs/common';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../entities/category.entity';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
+  @Get()
+  async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string){
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.categoryService.findAllWithPagination(filter);
+  }
 
   @Get()
   async findAll(): Promise<Category[]> {

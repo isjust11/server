@@ -11,13 +11,13 @@ import { FeatureService } from 'src/services/feature.service';
 export class FeatureController {
     constructor(private readonly featureService: FeatureService) {}
     @Get()
-    async getFeature(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string){
-      const filter: PaginationParams = {
-        page: page || 1,
-        size: size || 10,
-        search: search || ''
-      };
-      return this.featureService.findAllWithPagination(filter);
+    async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+        const filter: PaginationParams = {
+            page: page || 1,
+            size: size || 10,
+            search: search || ''
+        };
+        return this.featureService.findAllWithPagination(filter);
     }
     
     @Post()

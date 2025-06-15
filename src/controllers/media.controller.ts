@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UseInterceptors, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, Request, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from '../services/media.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Media } from '../entities/media.entity';
 import { UpdateMediaDto } from '../dtos/media.dto';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('media')
 @UseGuards(JwtAuthGuard)
@@ -11,8 +12,13 @@ export class MediaController {
   constructor(private mediaService: MediaService) {}
 
   @Get()
-  async findAll(@Request() req): Promise<Media[]> {
-    return this.mediaService.findAll(req.user.id);
+  async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.mediaService.findAllWithPagination(filter);
   }
 
   @Get(':id')

@@ -1,14 +1,20 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
 import { CategoryTypeService } from '../services/category-type.service';
 import { CategoryType } from '../entities/category-type.entity';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('category-types')
 export class CategoryTypeController {
   constructor(private readonly categoryTypeService: CategoryTypeService) {}
 
   @Get()
-  async findAll(): Promise<CategoryType[]> {
-    return this.categoryTypeService.findAll();
+  async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.categoryTypeService.findAllWithPagination(filter);
   }
 
   @Get(':id')

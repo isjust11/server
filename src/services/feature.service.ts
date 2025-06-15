@@ -38,18 +38,21 @@ export class FeatureService {
         const { page = 1, size = 10, search = '' } = params;
         const skip = (page - 1) * size;
 
-        const whereConditions = search ? [
-            { label: Like(`%${search}%`) },
-            { link: Like(`%${search}%`) },
-        ] : {};
+        const queryBuilder = this.featureRepository.createQueryBuilder('feature')
+            .leftJoinAndSelect('feature.children', 'children')
+            .leftJoinAndSelect('feature.parent', 'parent');
 
-        const [data, total] = await this.featureRepository.findAndCount({
-            where: whereConditions,
-            skip,
-            take: size,
-            relations: ['featureType',],
-            order: { id: 'DESC' },
-        });
+        if (search) {
+            queryBuilder.where('feature.label LIKE :search OR feature.link LIKE :search', {
+                search: `%${search}%`,
+            });
+        }
+
+        const [data, total] = await queryBuilder
+            .skip(skip)
+            .take(size)
+            .orderBy('feature.createdAt', 'DESC')
+            .getManyAndCount();
 
         return {
             data,

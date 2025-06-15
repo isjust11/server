@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { Media } from '../entities/media.entity';
 import { UploadMediaDto, UpdateMediaDto } from '../dtos/media.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PaginatedResponse, PaginationParams } from 'src/dtos/filter.dto';
 
 @Injectable()
 export class MediaService {
@@ -83,5 +84,32 @@ export class MediaService {
     };
 
     return this.create(mediaDto);
+  }
+
+  async findAllWithPagination(params: PaginationParams): Promise<PaginatedResponse<Media>> {
+    const { page = 1, size = 10, search = '' } = params;
+    const skip = (page - 1) * size;
+
+    const queryBuilder = this.mediaRepository.createQueryBuilder('media');
+
+    if (search) {
+      queryBuilder.where('media.name LIKE :search OR media.type LIKE :search', {
+        search: `%${search}%`,
+      });
+    }
+
+    const [data, total] = await queryBuilder
+      .skip(skip)
+      .take(size)
+      .orderBy('media.createdAt', 'DESC')
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      size,
+      totalPages: Math.ceil(total / size),
+    };
   }
 } 

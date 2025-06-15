@@ -5,6 +5,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesGuard } from 'src/middleware/auth.middleware';
 
+// controller quản lý đặt 
 @Controller('reservations')
 export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}

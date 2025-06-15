@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { FoodItemService } from '../services/food-item.service';
+import { FoodItem } from '../entities/food-item.entity';
 import { CreateFoodItemDto, UpdateFoodItemDto } from '../dtos/food-item.dto';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('food-items')
 export class FoodItemController {
@@ -12,18 +14,13 @@ export class FoodItemController {
   }
 
   @Get()
-  findAll(
-    @Query('categoryId') categoryId?: string,
-    @Query('statusId') statusId?: string,
-    @Query('isAvailable') isAvailable?: boolean,
-    @Query('search') search?: string,
-  ) {
-    return this.foodItemService.findAll({
-      categoryId,
-      statusId,
-      isAvailable,
-      search,
-    });
+  async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.foodItemService.findAllWithPagination(filter);
   }
 
   @Get(':id')

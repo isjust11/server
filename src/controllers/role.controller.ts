@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, UseInterceptors, Query } from '@nestjs/common';
 import { RoleService } from '../services/role.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Role } from '../entities/role.entity';
@@ -7,6 +7,7 @@ import { Feature } from '../entities/feature.entity';
 import { AssignFeatureDto } from '../dtos/assign-navigator.dto';
 import { EncryptionInterceptor } from 'src/interceptors/encryption.interceptor';
 import { Base64EncryptionUtil } from 'src/utils/base64Encryption.util';
+import { PaginationParams } from 'src/dtos/filter.dto';
 
 @Controller('roles')
 @UseGuards(JwtAuthGuard)
@@ -15,8 +16,13 @@ export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get()
-  async findAll(): Promise<Role[]> {
-    return this.roleService.findAll();
+  async getAll(@Query('page') page: number, @Query('size') size: number, @Query('search') search: string) {
+    const filter: PaginationParams = {
+      page: page || 1,
+      size: size || 10,
+      search: search || ''
+    };
+    return this.roleService.findAllWithPagination(filter);
   }
 
   @Get(':id')
