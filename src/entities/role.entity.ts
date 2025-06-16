@@ -48,6 +48,9 @@ export class Role {
   })
   features: Feature[];
 
+  @Column({ nullable: true })
+  allowModify: boolean;
+
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

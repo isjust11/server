@@ -40,7 +40,8 @@ export class FeatureService {
 
         const queryBuilder = this.featureRepository.createQueryBuilder('feature')
             .leftJoinAndSelect('feature.children', 'children')
-            .leftJoinAndSelect('feature.parent', 'parent');
+            .leftJoinAndSelect('feature.parent', 'parent')
+            .leftJoinAndSelect('feature.featureType', 'featureType');
 
         if (search) {
             queryBuilder.where('feature.label LIKE :search OR feature.link LIKE :search', {

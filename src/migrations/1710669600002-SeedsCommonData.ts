@@ -69,7 +69,7 @@ export class SeedsCommonData1710669600002 implements MigrationInterface {
         // Insert các chức năng con của quản trị
         await queryRunner.query(`
             INSERT INTO feature (label, link,  parentId, isActive) VALUES
-            ('Chức năng', '/manager/admin/features', '${featureAdminId}', true),
+            ('Chức năng', '/manager/admin/feature', '${featureAdminId}', true),
             ( 'Vai trò', '/manager/admin/roles', '${featureAdminId}', true)
         `);
 
