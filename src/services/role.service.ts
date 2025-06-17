@@ -74,6 +74,14 @@ export class RoleService {
       role.name = updateRoleDto.name;
     }
 
+    if (updateRoleDto.code) {
+      role.code = updateRoleDto.code;
+    }
+
+    if (updateRoleDto.isActive !== undefined) {
+      role.isActive = updateRoleDto.isActive;
+    }
+
     if (updateRoleDto.description !== undefined) {
       role.description = updateRoleDto.description;
     }
