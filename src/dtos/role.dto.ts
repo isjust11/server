@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsBoolean } from 'class-validator';
 
 export class RoleDto {
   @IsString()
@@ -11,6 +11,10 @@ export class RoleDto {
   @IsString()
   @IsOptional()
   code?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 
   @IsArray()
   @IsOptional()

@@ -74,6 +74,14 @@ export class RoleService {
       role.name = updateRoleDto.name;
     }
 
+    if (updateRoleDto.code) {
+      role.code = updateRoleDto.code;
+    }
+
+    if (updateRoleDto.isActive !== undefined) {
+      role.isActive = updateRoleDto.isActive;
+    }
+
     if (updateRoleDto.description !== undefined) {
       role.description = updateRoleDto.description;
     }
@@ -87,10 +95,10 @@ export class RoleService {
 
     if (updateRoleDto.features) {
       const navigatorDecodes = updateRoleDto.features.map((item)=> Base64EncryptionUtil.decrypt(item));
-      const navigators = await this.featureRepository.find({
+      const features = await this.featureRepository.find({
         where: { id: In(navigatorDecodes) },
       });
-      role.features = navigators;
+      role.features = features;
     }
     return this.roleRepository.save(role);
   }
