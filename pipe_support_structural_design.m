@@ -233,12 +233,19 @@ L_e = K * H_post;  % Effective length (mm)
 lambda = L_e / r_tube;  % Slenderness ratio
 
 % Column strength per CSA S16 Cl. 13.3.1
-% Simplified approach for slenderness
+% Use proper CSA S16 column curve formula
 Fe = pi^2 * E / lambda^2;  % Elastic buckling stress (MPa)
 
-if lambda <= (25 * sqrt(E/Fy))
-    Cr = phi * A_tube * (1 + lambda^(2*1.34))^(-1/1.34) * Fy / 1000;  % kN
+% Calculate non-dimensional slenderness parameter
+lambda_normalized = sqrt(Fy / Fe);
+
+% CSA S16 Column curve (Class C for HSS)
+if lambda_normalized <= 1.34
+    % Inelastic buckling range
+    n = 1.34;  % Column curve parameter for Class C
+    Cr = phi * A_tube * Fy * (1 + lambda_normalized^(2*n))^(-1/n) / 1000;  % kN
 else
+    % Elastic buckling range
     Cr = phi * A_tube * Fe / 1000;  % kN
 end
 
@@ -257,6 +264,8 @@ UC_combined = (P_f/1000)/Cr + 0.85*(M_base)/M_r;
 fprintf('=== VERTICAL POST ANALYSIS ===\n');
 fprintf('Post Height: %.0f mm\n', H_post);
 fprintf('Slenderness Ratio: %.2f\n', lambda);
+fprintf('Non-dimensional Slenderness: %.3f\n', lambda_normalized);
+fprintf('Elastic Buckling Stress (Fe): %.2f MPa\n', Fe);
 fprintf('Axial Compression: %.2f kN\n', P_f/1000);
 fprintf('Compressive Resistance (Cr): %.2f kN\n', Cr);
 fprintf('Compression Unity Check: %.3f ', UC_compression);
@@ -289,13 +298,16 @@ bolt_circle = anchor_spacing;  % Distance between bolt centers
 
 % Conservative: assume 2 bolts in tension
 n_tension = 2;
-c = bolt_circle / 2;  % Distance to extreme bolt
+y_bolt = bolt_circle / 2;  % Distance from center to bolt
 
 % Moment at base plate
 M_bp = M_base + P_f * (tube_outer/2 + base_thickness) / 1000;  % N?m
 
+% For bolt group under moment: T = M * y / sum(y^2)
+% For 2 bolts at distance y: sum(y^2) = 2*y^2
+sum_y_squared = n_tension * y_bolt^2;  % mm^2
 % Tension per bolt
-T_bolt = M_bp * 1000 * c / (n_tension * bolt_circle);  % N
+T_bolt = (M_bp * 1000 * y_bolt) / sum_y_squared;  % N
 
 % Add compression load distributed over all bolts
 P_bolt = P_f / n_anchors;  % N per bolt
@@ -322,6 +334,8 @@ fprintf('=== ANCHOR BOLT ANALYSIS ===\n');
 fprintf('Anchor Type: Hilti 1/2" Drop-in Anchors\n');
 fprintf('Number of Anchors: %d\n', n_anchors);
 fprintf('Moment at Base Plate: %.2f N?m\n', M_bp);
+fprintf('Bolt Distance from Center: %.1f mm\n', y_bolt);
+fprintf('Sum of y-squared: %.0f mm^2\n', sum_y_squared);
 fprintf('Tension per Bolt (from moment): %.2f N\n', T_bolt);
 fprintf('Compression per Bolt: %.2f N\n', P_bolt);
 fprintf('Net Tension per Bolt: %.2f N\n', T_net);
